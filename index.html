@@ -162,6 +162,8 @@ h1{font-weight:700}
 .cell{min-height:92px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
 .cell.has{background:var(--acbg);border-color:var(--ac)}
 .cgrp{border-bottom:1px solid var(--line)}.cgrp>summary{cursor:pointer;padding:9px 0;line-height:1.4}.cgrp>.lnk{display:block;padding:0 0 4px;min-height:0}.cgrp .pi{padding-left:10px;border-left:3px solid var(--line);border-bottom:0}
+.ver{border:0;background:none;color:var(--sub);font:inherit;font-size:.75rem;padding:4px 6px;cursor:pointer;text-decoration:underline dotted}
+#verinfo{background:var(--acbg);border-radius:8px;padding:8px 12px;font-size:.85rem;line-height:1.6;margin:4px 0}
 .cmph{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cmph .cpb{margin-left:auto}
 .cell.multi .cc{font-size:.72rem;-webkit-line-clamp:2}
 .cell.has.rq{background:var(--okbg);border-color:var(--ok)}
@@ -200,7 +202,7 @@ a.rel.cmp{padding:10px 12px;border:1px solid var(--line);border-radius:10px;text
 </head>
 <body>
 <header><div class="wrap">
-<h1 id="h1"><a href="#/">九大シラバス</a> <small class="ver">v0930-時間割</small></h1>
+<h1 id="h1"><a href="#/">九大シラバス</a> <button class="ver" id="ver" type="button" aria-expanded="false">v0930-時間割</button><div id="verinfo" hidden></div></h1>
 <nav id="nav" class="nav" hidden></nav>
 <div id="dbar" hidden><button id="bk" type="button" aria-label="前の画面に戻る">‹ 戻る</button><span id="dtitle"></span></div>
 <div id="ctlbar" hidden><button class="chip" id="ctlt" type="button">検索・絞り込みを開く ▾</button></div>
@@ -260,7 +262,9 @@ function elig(c){
   if(b.fl.includes('ALL'))return /・日本語】/.test(b.cat)?'intl':'yes';
   return 'no';
 }
-const placeOf=c=>{const b=c.b;if(!b)return '';
+const placeOf=c=>{const b=c.b;
+  if(!b){const x=c.campus||'';return /大橋|馬出/.test(x)?'大橋':/病院/.test(x)?'病院':/伊都/.test(x)?'伊都':''}
+  if(/大橋/.test(b.campus))return '大橋';
   if(/遠隔/.test(b.room)||/遠隔/.test(b.campus))return '遠隔';
   if(/イースト/.test(b.campus))return '伊都(イースト)';if(/病院/.test(b.campus))return '病院';
   return /センター/.test(b.campus)?'伊都(センター)':'その他'};
@@ -307,7 +311,7 @@ function syncCtl(){
   $('#btver').textContent=BT?'B表: '+Object.entries(BTV).map(([k,x])=>`${k} ${String(x).replace(/^\d{4}\//,'')}版`).join(' / '):'';
   if(BT){
     $('#cls').innerHTML='<option value="">クラス未設定</option>'+CLASSDEF.map(([g,a])=>`<optgroup label="${g}">${a.map(([v,l])=>`<option value="${v}"${v===CLS?' selected':''}>${/^D/.test(v)?clsName(v):v+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('');
-    opts('#place','場所',['伊都(センター)','伊都(イースト)','病院','遠隔'],p.get('place'));
+    opts('#place','場所',['大橋','伊都','伊都(センター)','伊都(イースト)','病院','遠隔'],p.get('place'));
     $('#mine').setAttribute('aria-pressed',String(mineOn()));$('#nolot').setAttribute('aria-pressed',String(!!p.get('nolot')));
   }
   $('#days').innerHTML=DAYS.map(d=>`<button class="chip" aria-pressed="${p.get('d')===d}" data-d="${d}">${d}</button>`).join('');
@@ -322,7 +326,7 @@ function filtered(){
     if(!q.every(t=>hay.includes(t)))return false;
     if(mineOn()){const e=elig(c);if(e!=='yes'&&e!=='unk')return false}
     if(p.get('nolot')&&c.b&&c.b.apply)return false;
-    if(p.get('place')&&placeOf(c)!==p.get('place'))return false;
+    if(p.get('place')){const pl=placeOf(c),w=p.get('place');if(!(pl===w||(w==='伊都'&&pl.startsWith('伊都'))))return false}
     if(sem||d||per)return slots(c).some(s=>(!sem||s.sem.startsWith(sem))&&(!d||s.d===d)&&(!per||s.p===per));
     return true;
   });
@@ -577,6 +581,18 @@ $('#days').addEventListener('click',e=>{const b=e.target.closest('[data-d]');b&&
 $('#view').addEventListener('click',e=>{if(e.target.closest('.item'))listScroll=window.scrollY});
 window.addEventListener('hashchange',()=>{saveScroll();inApp=true;route()});
 window.addEventListener('resize',measureHead);
+/* バージョン欄: 配信されているファイルの更新日時(Last-Modified)を見せる */
+(()=>{
+  const fmt=d=>d&&!isNaN(d)?`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'不明';
+  const lm=u=>fetch(u,{method:'HEAD',cache:'no-cache'}).then(r=>{const h=r.headers.get('last-modified');return h?new Date(h):null}).catch(()=>null);
+  let site=null,dat=null;
+  const load=Promise.all([lm(location.pathname),lm('data/index.json')]).then(([a,b])=>{site=a;dat=b;if(a){$('#ver').textContent='更新 '+(a.getMonth()+1)+'/'+a.getDate()}});
+  const btn=$('#ver'),box=$('#verinfo');
+  btn.addEventListener('click',async()=>{
+    const open=box.hidden;if(open){await load;const bv=BTV&&(BTV['前期']||BTV['後期'])?`　B表: 前期 ${BTV['前期']||'-'} / 後期 ${BTV['後期']||'-'}`:'';box.innerHTML=`サイト(画面・機能)の更新: <b>${fmt(site)}</b><br>講義データの更新: <b>${fmt(dat)}</b>${bv?'<br>'+esc(bv.trim()):''}<br><span class="srcnote">配信サーバー上のファイルの更新日時です。</span>`}
+    box.hidden=!open;btn.setAttribute('aria-expanded',open);measureHead();
+  });
+})();
 $('#bk').addEventListener('click',goBack);
 $('#view').addEventListener('click',e=>{
   const t=e.target.closest('.tabs a');
