@@ -530,6 +530,7 @@ const EXTSVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
     else if(y<last-30){setCc(false,true)}
     last=y;
   },{passive:true});
+  window.__cc={get:()=>ctl.classList.contains('cc'),set:on=>{ctl.classList.toggle('cc',on);measureHead();sync();last=scrollY;lock=Date.now()+300}};
   btn.addEventListener('click',()=>{pin=true;setCc(false,false);ctl.scrollIntoView({block:'nearest'})});
   new MutationObserver(()=>{if(ctl.hidden)ctl.classList.remove('cc');sync()}).observe(ctl,{attributes:true,attributeFilter:['hidden']});
 })();
@@ -541,16 +542,28 @@ function initTabs(){
   links.forEach(a=>{const el=document.getElementById(a.dataset.t);el&&io.observe(el)});
   links[0].classList.add('on');
 }
+/* 戻る操作でスクロール位置と「もっと見る」の件数を元に戻す(履歴の項目ごとに覚える) */
+const SCP={};let curKey=null,keySeq=0;const _rs=history.replaceState.bind(history);
+history.replaceState=(st,t,u)=>_rs(st||history.state,t,u);
+function saveScroll(){if(curKey)SCP[curKey]={y:scrollY,shown,cc:window.__cc?window.__cc.get():false}}
+function restoreScroll(sv){
+  if(!sv){window.scrollTo(0,0);return}
+  if(window.__cc&&!$('#ctl').hidden)window.__cc.set(!!sv.cc);
+  let n=0;const go=()=>{window.scrollTo(0,sv.y);if(Math.abs(scrollY-sv.y)>2&&n++<30)requestAnimationFrame(go)};go();
+}
 function route(){
+  const st0=history.state;let sv=null;
+  if(st0&&st0.k){curKey=st0.k;sv=SCP[st0.k]||null}else{curKey='k'+(++keySeq)+'_'+Date.now();_rs({k:curKey},'')}
+  if(sv&&/^#\/?(\?|$)/.test(location.hash))shown=sv.shown||shown;
   const h=location.hash;
   $('#dbar').hidden=true;$('#dtitle').textContent='';$('#h1').hidden=false;
   renderNav();
   if(h.startsWith('#/c/')){renderDetail(decodeURIComponent(h.slice(4)))}
   else if(/^#\/[twg](\?|$)/.test(h)){
     document.title={t:'時間割',w:'科目比較',g:'卒業要件'}[h[2]]+' - 九大シラバス';
-    $('#ctl').hidden=true;rerender();measureHead();window.scrollTo(0,0);
+    $('#ctl').hidden=true;rerender();measureHead();restoreScroll(sv);
   }
-  else{document.title='九大シラバス';syncCtl();renderList();measureHead();window.scrollTo(0,listScroll)}
+  else{document.title='九大シラバス';syncCtl();renderList();measureHead();restoreScroll(sv)}
 }
 $('#q').addEventListener('input',e=>setP('q',e.target.value));
 for(const id of ['sem','cat','sub','per'])$('#'+id).addEventListener('change',e=>setP(id,e.target.value));
@@ -561,7 +574,7 @@ $('#nolot').addEventListener('click',()=>setP('nolot',params().get('nolot')?'':'
 $('#place').addEventListener('change',e=>setP('place',e.target.value));
 $('#days').addEventListener('click',e=>{const b=e.target.closest('[data-d]');b&&setP('d',params().get('d')===b.dataset.d?'':b.dataset.d)});
 $('#view').addEventListener('click',e=>{if(e.target.closest('.item'))listScroll=window.scrollY});
-window.addEventListener('hashchange',()=>{inApp=true;route()});
+window.addEventListener('hashchange',()=>{saveScroll();inApp=true;route()});
 window.addEventListener('resize',measureHead);
 $('#bk').addEventListener('click',goBack);
 $('#view').addEventListener('click',e=>{
