@@ -529,7 +529,7 @@ const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
 const crOf=c=>parseFloat(zen(String(c.credit||'')))||0;
-const gradeOK=c=>{const g=zen(c.grade||'');return !g||/全学年|1/.test(g)};
+const gradeOK=c=>{const g=zen(c.grade||'');return !g||(!/^(修士|博士)/.test(g)&&/全学年|1/.test(g))};
 const termOf=c=>{const x=((c.when||[])[0]||'').split(/[\s\u3000]+/)[0]||'';return /^(前期|春|夏)/.test(x)?'前期':/^(後期|秋|冬)/.test(x)?'後期':''};
 const defTerm=()=>{const m=new Date().getMonth()+1;return m>=9||m<=3?'後期':'前期'};
 const qHit=(a,b)=>a.some(x=>b.includes(x));
