@@ -161,6 +161,7 @@ h1{font-weight:700}
 .tl b{font-size:.95rem;color:var(--ink)}.tl small{font-size:.58rem}
 .cell{min-height:92px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
 .cell.has{background:var(--acbg);border-color:var(--ac)}
+.cmph{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cmph .cpb{margin-left:auto}
 .cell.multi .cc{font-size:.72rem;-webkit-line-clamp:2}
 .cell.has.rq{background:var(--okbg);border-color:var(--ok)}
 .cell.bad{background:var(--wnbg);border-color:var(--ng)}
@@ -612,7 +613,7 @@ function reqFor(){
   const k=um[1],y=+um[2],g=new Map();
   DATA.forEach(c=>{if(c.cx&&c.cx[k]==='h'&&(!c.yr.length||c.yr.includes(y))){const n=nameKey(c.n);(g.get(n)||g.set(n,[]).get(n)).push(c)}});
   const codes=[],manual=[];
-  g.forEach((a,n)=>a.length===1?codes.push(a[0].c):manual.push(n+': 同じ科目が'+a.length+'件あるので、クラス・時間を選んで入れる'));
+  g.forEach((a,n)=>a.length===1?codes.push(a[0].c):manual.push({n,t:n+': 同じ科目が'+a.length+'件あるので、クラス・時間を選んで入れる'}));
   return REQC[CLS]={codes,manual};
 }
 
@@ -678,8 +679,13 @@ function cellHTML(term,d,p,occ,idx,sel,confKeys){
   const inner=os.length?os.map(({c,s})=>`<span class="cc">${s.q.length===1?`<i>${s.q[0]}</i>`:''}${esc(c.n)}</span>`).join(''):`<span class="fr">${n?n+'<small>件</small>':''}</span>`;
   return `<button type="button" class="cell${os.length?' has':''}${os.length>1?' multi':''}${os.length&&os.every(o=>REQSET.has(o.c.c))?' rq':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
 }
+function clashes(c,term){
+  if(!term||PL.p[c.c])return false;
+  const tq=TERMQ[term],occ=occupancy(term);
+  return cslots(c).some(s=>qHit(s.q,tq)&&(occ.get(s.d+'-'+s.p)||[]).some(o=>qHit(o.s.q,s.q)));
+}
 function candRow(c,term){
-  const cf=(()=>{const tq=TERMQ[term];const occ=occupancy(term);return cslots(c).some(s=>qHit(s.q,tq)&&(occ.get(s.d+'-'+s.p)||[]).some(o=>qHit(o.s.q,s.q)))})();
+  const cf=clashes(c,term);
   return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
 }
 function planRow(c,st){
@@ -698,7 +704,7 @@ function renderTT(){
   let h=`<div class="row" id="ttctl">${['前期','後期'].map(t=>`<button class="chip" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="tcls" aria-label="自分のクラス"><option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}</select><button class="chip" data-nolot="1" aria-pressed="${nolot}">抽選なし</button></div>`;
   const at=reqFor();
   let atb='';
-  if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
+  if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>typeof x==='string'?`<li>${esc(x)}</li>`:`<li><a href="#/w?n=${encodeURIComponent(x.n)}">${esc(x.t)}</a></li>`).join('')}</ul></details>`:''}`}
   else if(!CLS)atb='<p class="hint">まず上のメニューで<b>自分のクラス</b>を選んでください。受講できる授業だけが数えられ、必修の授業もまとめて入れられます。</p>';
   else if(CLS)atb='<p class="note" style="margin-top:8px">このクラスの必修データはまだありません(S1-31 と芸術工学部 2〜4年に対応)。</p>';
   h+=atb+(REQSET.size?'<p class="tlg"><span><i style="background:var(--okbg);border-color:var(--ok)"></i>必修</span><span><i style="background:var(--acbg);border-color:var(--ac)"></i>選択・その他</span><span><i style="background:var(--wnbg);border-color:var(--ng)"></i>重複</span></p>':'')+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
@@ -839,13 +845,13 @@ async function renderCmp(){
   if(!cs.length)cs=pool().filter(c=>nameKey(c.n).startsWith(n));
   const total=cs.length;
   if(mine)cs=cs.filter(c=>!c.b||elig(c)!=='no');
-  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(clsName(CLS))} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(CLS)}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
+  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(clsName(CLS))} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(clsName(CLS))}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
   const box=$('#cmplist'),draw=()=>{
     const arr=cs.map(c=>({c,g:GC[c.c]})).sort((a,b)=>{
       const f=METRIC[sortKey][1],x=a.g&&!a.g.err?f(a.g.rows):99,y=b.g&&!b.g.err?f(b.g.rows):99;
       return x-y||a.c.t.localeCompare(b.c.t,'ja');
     });
-    box.innerHTML=arr.map(({c,g})=>`<section class="cmp"><div class="cmph"><a href="#/c/${esc(c.c)}"><b>${esc(c.t||'担当未定')}</b></a>${PL.p[c.c]?` <span class="tag s">${stLabel[PL.p[c.c]]}</span>`:''}${badgeHTML(c)}</div><span class="meta">${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${c.b&&c.b.cls?'　'+esc(c.b.cls):''}</span>${g?cmpBar(g.rows):'<p class="note">読み込み中…</p>'}</section>`).join('')||'<p class="note">該当する授業がありません。</p>';
+    box.innerHTML=arr.map(({c,g})=>`<section class="cmp"><div class="cmph"><a href="#/c/${esc(c.c)}"><b>${esc(c.t||'担当未定')}</b></a>${PL.p[c.c]?` <span class="tag s">${stLabel[PL.p[c.c]]}</span>`:''}${badgeHTML(c)}${clashes(c,termOf(c))?' <span class="tag no">重複</span>':''}<button type="button" class="chip cpb" data-cplan="${esc(c.c)}">${PL.p[c.c]==='plan'?'外す':'履修予定に入れる'}</button></div><span class="meta">${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${c.b&&c.b.cls?'　'+esc(c.b.cls):''}</span>${g?cmpBar(g.rows):'<p class="note">読み込み中…</p>'}</section>`).join('')||'<p class="note">該当する授業がありません。</p>';
   };
   draw();
   let i=0;
@@ -957,6 +963,7 @@ $('#view').addEventListener('click',e=>{
   if(b=by('#pimp')){$('#pfile').click();return}
   if(b=by('#pclr')){if(confirm('履修プランを全部消しますか?(卒業要件の手入力は残ります)')){PL.p={};plSave();renderTT()}return}
   if(b=by('[data-co]')){const p=params();p.set('o',b.dataset.co);history.replaceState(null,'','#/w?'+p);renderCmp();return}
+  if(b=by('[data-cplan]')){const code=b.dataset.cplan,c=BYC[code];if(c&&PL.p[code]!=='plan'&&CLS&&elig(c)==='no'&&!confirm(clsName(CLS)+' では対象外の授業です。それでも履修予定に入れますか?'))return;setPlan(code,PL.p[code]==='plan'?'':'plan');const y=scrollY;renderCmp().then(()=>scrollTo(0,y));return}
   if(b=by('[data-cmine]')){const p=params();p.get('mine')==='0'?p.delete('mine'):p.set('mine','0');history.replaceState(null,'','#/w?'+p);renderCmp();return}
   if(b=by('[data-md]')){const n=b.dataset.md,cur=mdStatus(n),nx=cur===''?'plan':cur==='plan'?'done':'-';PL.md[n]=nx;if(nx==='-'&&!DATA.some(x=>PL.p[x.c]&&nameKey(x.n)===nameKey(n)))delete PL.md[n];plSave();const y=scrollY,open=[...document.querySelectorAll('#view details')].map(d=>d.open);renderGrad();document.querySelectorAll('#view details').forEach((d,i)=>d.open=!!open[i]);scrollTo(0,y);return}
   if(b=by('[data-adj]')){const id=b.dataset.adj;PL.adj[id]=Math.max(0,(PL.adj[id]||0)+ +b.dataset.dv);plSave();const y=scrollY,open=[...document.querySelectorAll('#view details')].map(d=>d.open);renderGrad();document.querySelectorAll('#view details').forEach((d,i)=>d.open=!!open[i]);scrollTo(0,y);return}
