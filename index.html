@@ -572,7 +572,7 @@ $('#view').addEventListener('click',e=>{
 const PKEY='kyudai-syllabus-plan';
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem(PKEY)||'{}');return{p:o.p||{},adj:o.adj||{},md:o.md||{}}}catch(e){return{p:{},adj:{},md:{}}}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null,ATABLE=null;const SER=new Map();
+let BYC={},ALL_REQS=null,ATABLE=null;const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -873,10 +873,19 @@ function stepper(id,val,label){
 }
 function renderGrad(){
   const v=$('#view');$('#ctl').hidden=true;
-  if(!MDREQ){v.innerHTML='<h2 class="lh">卒業要件</h2><p class="note">data/mdreq.json が読み込めません。data フォルダに置いてください。</p>';return}
-  const ck=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
-  const warn=ck&&ck!=='31'&&ck!=='33'?`<p class="wl warn">いま選んでいるクラスは${esc(clsName(CLS))}ですが、この画面の卒業要件は<b>メディアデザインコース用</b>の内容です。他のコースの要件データはまだありません。</p>`:'';
-  const R=MDREQ;let out=warn+`<h2 class="lh">卒業要件 <small>${esc(R.course)}</small></h2><p class="srcnote">${esc(R.source)}</p>`;
+  if(!ALL_REQS){v.innerHTML='<h2 class="lh">卒業要件</h2><p class="note">data/all_reqs.json が読み込めません。data フォルダに置いてください。</p>';return}
+  const p=params();
+  let cid=p.get('c');
+  if(!cid){
+    const ck=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
+    if(ck==='31'||ck==='33') cid='芸術工学部 芸術工学科 メディアデザインコース';
+    else cid='共創学部';
+  }
+  const R=ALL_REQS.find(r=>r.course===cid)||ALL_REQS[0];
+  cid=R.course;
+  const sel=`<select id="course_select" style="margin-left:1em;font-size:1rem">${ALL_REQS.map(r=>`<option value="${esc(r.course)}"${r.course===cid?' selected':''}>${esc(r.course)}</option>`).join('')}</select>`;
+  let out=`<h2 class="lh" style="display:flex;align-items:center;flex-wrap:wrap">卒業要件 ${sel}</h2>`;
+  if(R.source) out+=`<p class="srcnote">${esc(R.source)}</p>`;
   let doneAll=0,planAll=0;
   // --- 基幹教育
   const K=R.kiban;let kd=0,kp=0,excess=0;const kr=[];
@@ -895,29 +904,35 @@ function renderGrad(){
     hk+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${e.d}${e.pl?`(+${e.pl})`:''} / ${g.req}${e.d>=g.req?' ✓':''}</span></div>${bar(e.d,e.pl,g.req)}<p class="srcnote">${esc(g.note||'')}</p>${stepper(g.id,PL.adj[g.id]||0,'手入力の修得単位')}</div>`;
   }
   const od=Math.min(og.req,oauto+oadj);kd+=od;
-  hk+=`<div class="grow"><div class="gh"><b>${esc(og.name)}</b><span class="gn2">${od} / ${og.req}${od>=og.req?' ✓':''}</span></div>${bar(od,0,og.req)}<p class="srcnote">${esc(og.note)}(自動: 各区分の超過分 ${oauto}単位)</p>${stepper(og.id,oadj,'手入力(他コース等)')}</div></section>`;
+  hk+=`<div class="grow"><div class="gh"><b>${esc(og.name)}</b><span class="gn2">${od} / ${og.req}${od>=og.req?' ✓':''}</span></div>${bar(od,0,og.req)}<p class="srcnote">${esc(og.note||'')}(自動: 各区分の超過分 ${oauto}単位)</p>${stepper(og.id,oadj,'手入力(他コース等)')}</div></section>`;
   // --- 専攻教育
   const S=R.senkou;const gs={};
   const cnt=courses=>{let d=0,pl=0;for(const c of courses){const st=mdStatus(c.n);if(st==='done')d+=c.cr;else if(st==='plan')pl+=c.cr}return{d,pl}};
   const courseList=(courses)=>`<details><summary>科目 ${courses.length}件を開く</summary>${courses.map(c=>{const st=mdStatus(c.n);return `<div class="pi mdc"><span class="pit"><b>${c.t?`<span class="mk">${c.t}</span>`:''}${esc(c.n)}</b><span class="meta">${c.cr}単位　<a href="#/?q=${encodeURIComponent(c.n)}">シラバスで探す</a></span>${c.note?`<span class="srcnote">${esc(c.note)}</span>`:''}</span><button type="button" class="chip st${st?' on':''}" data-md="${esc(c.n)}">${st==='done'?'修得済み':st==='plan'?'履修予定':'未'}</button></div>`}).join('')}</details>`;
   let hs=`<section class="gsec"><h3>専攻教育科目 <small>${S.total}単位</small></h3>`;
-  for(const g of S.groups){
-    if(g.derived)continue;
-    let d=0,pl=0,body='';
-    if(g.sub){
-      for(const sg of g.sub){const c=cnt(sg.courses);d+=c.d;pl+=c.pl;const ok=c.d>=sg.min;body+=`<div class="sgl"><b>${esc(sg.name)}</b> <span class="gn2">${c.d}${c.pl?`(+${c.pl})`:''}単位 ${ok?'✓':`(${sg.min}単位以上が必要)`}</span></div>`+courseList(sg.courses)}
-    }else{const c=cnt(g.courses);d=c.d;pl=c.pl;body=courseList(g.courses)}
-    gs[g.id]={d,pl};
-    const cap=Math.min(d,g.req);
-    doneAll+=cap;planAll+=Math.min(d+pl,g.req)-cap;
-    hs+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${d}${pl?`(+${pl})`:''} / ${g.req}${d>=g.req?' ✓':''}</span></div>${bar(d,pl,g.req)}${g.note?`<p class="srcnote">${esc(g.note)}</p>`:''}${body}</div>`;
+  if(S.groups && S.groups.length > 0){
+    for(const g of S.groups){
+      if(g.derived)continue;
+      let d=0,pl=0,body='';
+      if(g.sub){
+        for(const sg of g.sub){const c=cnt(sg.courses);d+=c.d;pl+=c.pl;const ok=c.d>=sg.min;body+=`<div class="sgl"><b>${esc(sg.name)}</b> <span class="gn2">${c.d}${c.pl?`(+${c.pl})`:''}単位 ${ok?'✓':`(${sg.min}単位以上が必要)`}</span></div>`+courseList(sg.courses)}
+      }else{const c=cnt(g.courses);d=c.d;pl=c.pl;body=courseList(g.courses)}
+      gs[g.id]={d,pl};
+      const cap=Math.min(d,g.req);
+      doneAll+=cap;planAll+=Math.min(d+pl,g.req)-cap;
+      hs+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${d}${pl?`(+${pl})`:''} / ${g.req}${d>=g.req?' ✓':''}</span></div>${bar(d,pl,g.req)}${g.note?`<p class="srcnote">${esc(g.note)}</p>`:''}${body}</div>`;
+    }
+    const dg=S.groups.find(g=>g.derived),oth=PL.adj['sk-other']||0;
+    const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-25)+Math.max(0,(gs['sk-pbl']||{d:0}).d-20)+oth;
+    const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-25)+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-20)+oth-exD;
+    const dd=Math.min(dg.req,exD),dp=Math.min(dg.req-dd,Math.max(0,exP));
+    doneAll+=dd;planAll+=dp;
+    hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=4?'(4単位以上の条件を満たしています)':'(4単位以上が必要)'}</p></div></section>`;
+  } else {
+    const sd=PL.adj['senkou_done']||0,sp=PL.adj['senkou_plan']||0;
+    doneAll+=sd;planAll+=sp;
+    hs+=`<div class="grow"><div class="gh"><b>専攻教育科目</b><span class="gn2">${sd}${sp?`(+${sp})`:''} / ${S.total}${sd>=S.total?' ✓':''}</span></div>${bar(sd,sp,S.total)}<p class="srcnote">※このコースの専攻教育科目の集計機能は未対応です。手入力で修得単位を足してください。</p>${stepper('senkou_done',sd,'修得済み手入力')} ${stepper('senkou_plan',sp,'履修予定手入力')}</div></section>`;
   }
-  const dg=S.groups.find(g=>g.derived),oth=PL.adj['sk-other']||0;
-  const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-25)+Math.max(0,(gs['sk-pbl']||{d:0}).d-20)+oth;
-  const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-25)+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-20)+oth-exD;
-  const dd=Math.min(dg.req,exD),dp=Math.min(dg.req-dd,Math.max(0,exP));
-  doneAll+=dd;planAll+=dp;
-  hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=4?'(4単位以上の条件を満たしています)':'(4単位以上が必要)'}</p></div></section>`;
   const tD=kd+doneAll,tP=kp+planAll;
   out+=`<section class="gsec total"><h3>合計 <small>卒業要件 ${R.total}単位</small></h3><div class="big">${tD}<small> / ${R.total}単位 修得済み${tP?`(予定を入れると ${tD+tP})`:''}</small></div>${bar(tD,tP,R.total)}<p class="srcnote">各区分は上限(必要単位)までを数えています。あと ${Math.max(0,R.total-tD)}単位。</p></section>`+hk+hs;
   out+=`<section class="gsec"><h3>履修条件・注意</h3>${R.rules.map(r=>`<p class="srcnote" style="font-size:.85rem">${esc(r)}</p>`).join('')}<p class="srcnote">単位は履修プランの「修得済み」「履修予定」と、この画面の手入力から集計しています。正式な確認は学務システム・便覧で行ってください。</p></section>`;
@@ -957,6 +972,12 @@ $('#view').addEventListener('click',e=>{
   if(b=by('[data-adj]')){const id=b.dataset.adj;PL.adj[id]=Math.max(0,(PL.adj[id]||0)+ +b.dataset.dv);plSave();const y=scrollY,open=[...document.querySelectorAll('#view details')].map(d=>d.open);renderGrad();document.querySelectorAll('#view details').forEach((d,i)=>d.open=!!open[i]);scrollTo(0,y);return}
 });
 $('#view').addEventListener('change',e=>{
+  if(e.target.id==='course_select'){
+    const p=params(); p.set('c', e.target.value);
+    history.replaceState(null,'','#/g?'+p);
+    renderGrad();
+    return;
+  }
   if(e.target.id==='pfile'){
     const f=e.target.files[0];if(!f)return;
     f.text().then(t=>{
@@ -977,7 +998,6 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;MDREQ=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
-</script>
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/all_reqs.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;ALL_REQS=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});</script>
 </body>
 </html>

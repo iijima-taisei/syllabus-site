@@ -1,0 +1,3263 @@
+[
+  {
+    "course": "共創学部",
+    "total": 124.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 12,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 8.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 8.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 9.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 76.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "文学部",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 5.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 13.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "文学部 国際コース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 5.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 8.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "教育学部",
+    "total": 124.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 5.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 11.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 76.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "法学部",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 5.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 12.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "経済学部 経済・経営学科",
+    "total": 126.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 6.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 12.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 78.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "経済学部 経済工学科",
+    "total": 126.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 7.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 5.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 8.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 10.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 10.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 78.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "理学部 物理学科",
+    "total": 125.0,
+    "kiban": {
+      "total": 47.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 21.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 3.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 78.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "理学部 化学科",
+    "total": 124.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 23.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 76.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "理学部 地球惑星科学科",
+    "total": 125.0,
+    "kiban": {
+      "total": 52.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 26.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 1.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 73.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "理学部 数学科",
+    "total": 124.0,
+    "kiban": {
+      "total": 46.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 17.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 6.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 78.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "理学部 生物学科",
+    "total": 124.0,
+    "kiban": {
+      "total": 52.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 26.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 1.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 72.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "医学部 医学科",
+    "total": 207.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 18.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 5.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 159.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "医学部 生命科学科",
+    "total": 127.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 18.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 5.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 79.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "医学部 保健学科 看護学専攻",
+    "total": 143.0,
+    "kiban": {
+      "total": 46.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 10.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 8.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 97.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "医学部 保健学科 放射線技術科学専攻",
+    "total": 148.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 5.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 100.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "医学部 保健学科 検査技術科学専攻",
+    "total": 145.0,
+    "kiban": {
+      "total": 46.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 15.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 8.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 99.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "歯学部",
+    "total": 233.0,
+    "kiban": {
+      "total": 46.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 10.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 19.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 4.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 1.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 187.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "薬学部 創薬科学科",
+    "total": 128.0,
+    "kiban": {
+      "total": 52.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 10.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 23.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 3.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 76.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "薬学部 臨床薬学科",
+    "total": 190.0,
+    "kiban": {
+      "total": 58.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 10.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 23.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 9.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 132.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅰ群（電気情報工学科）",
+    "total": 132.5,
+    "kiban": {
+      "total": 45.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 22.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 87.5,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅱ群（材料工学科・応用化学科・化学工学科・融合基礎工学科）",
+    "total": 134.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 25.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 86.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅲ群（融合基礎工学科（機械電気コース）・機械工学科・航空宇宙工学科・量子物理工学科）",
+    "total": 134.0,
+    "kiban": {
+      "total": 48,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 86.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅳ群（船舶海洋工学科・地球資源システム工学科・土木工学科）",
+    "total": 130.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 25.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 2.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 82.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅴ群（建築学科）",
+    "total": 130.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 25.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 82.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "工学部 Ⅵ群",
+    "total": 124,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 2.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 22,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 76.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "芸術工学部 芸術工学科 環境設計コース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "芸術工学部 芸術工学科 インダストリアルデザインコース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "芸術工学部 芸術工学科 未来構想デザインコース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "芸術工学部 芸術工学科 メディアデザインコース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80,
+      "groups": [
+        {
+          "id": "sk-lit",
+          "name": "デザインリテラシー科目",
+          "req": 8,
+          "sub": [
+            {
+              "id": "lit-base",
+              "name": "デザインリテラシー基礎",
+              "min": 1,
+              "courses": [
+                {
+                  "n": "デザインリテラシー基礎",
+                  "cr": 1,
+                  "t": "◎"
+                }
+              ]
+            },
+            {
+              "id": "lit-zokei",
+              "name": "基礎造形",
+              "min": 1,
+              "courses": [
+                {
+                  "n": "基礎造形Ⅰ",
+                  "cr": 1,
+                  "t": "◎"
+                },
+                {
+                  "n": "基礎造形Ⅱ",
+                  "cr": 1,
+                  "t": "◎"
+                },
+                {
+                  "n": "基礎造形Ⅲ",
+                  "cr": 1,
+                  "t": "",
+                  "note": "R8年度は冬学期(月・火)のみ開講。履修者上限24名ずつで、9月頃の抽選に参加。秋学期には開講しません(時間割PDFの注記)"
+                },
+                {
+                  "n": "基礎造形Ⅳ",
+                  "cr": 1,
+                  "t": "",
+                  "note": "R8年度は秋学期(月・火)のみ開講。履修者上限25名ずつで、9月頃の抽選に参加。冬学期には開講しません(時間割PDFの注記)"
+                }
+              ]
+            },
+            {
+              "id": "lit-human",
+              "name": "人間とデザイン",
+              "min": 1,
+              "courses": [
+                {
+                  "n": "文化とデザイン",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "社会とデザイン",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "人間科学とデザイン",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "科学技術とデザイン",
+                  "cr": 1,
+                  "t": "○"
+                }
+              ]
+            },
+            {
+              "id": "lit-ron",
+              "name": "デザイン論",
+              "min": 1,
+              "courses": [
+                {
+                  "n": "デザイン論Ⅰ",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "デザイン論Ⅱ",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "デザイン・ケーススタディⅠ",
+                  "cr": 1,
+                  "t": "○"
+                },
+                {
+                  "n": "デザイン・ケーススタディⅡ",
+                  "cr": 1,
+                  "t": "○"
+                }
+              ]
+            }
+          ],
+          "note": "4つの科目群からそれぞれ1単位以上、合計8単位以上"
+        },
+        {
+          "id": "sk-kiso",
+          "name": "コース基礎科目",
+          "req": 7,
+          "courses": [
+            {
+              "n": "メディアデザイン概論Ⅰ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "メディアデザイン概論Ⅱ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "メディアデザイン概論Ⅲ",
+              "cr": 1,
+              "t": "◎"
+            },
+            {
+              "n": "メディア表現基礎",
+              "cr": 2,
+              "t": "◎"
+            },
+            {
+              "n": "メディアプログラミング",
+              "cr": 2,
+              "t": "◎"
+            },
+            {
+              "n": "環境設計基礎Ⅰ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "環境設計基礎Ⅱ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "インダストリアルデザイン基礎Ⅰ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "インダストリアルデザイン基礎Ⅱ",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "未来構想デザイン概論",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "未来の研究アプローチ",
+              "cr": 1,
+              "t": "○"
+            }
+          ],
+          "note": "必修5単位(◎)を含み、残りは○から。学科一括入試入学者用の科目を含む"
+        },
+        {
+          "id": "sk-sen",
+          "name": "コース専門科目",
+          "req": 25,
+          "courses": [
+            {
+              "n": "ゲームデザイン",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "映像表現",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "アニメーション表現",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "芸術論",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "数理造形",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "タイポグラフィックデザイン",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "グラフィックデザイン",
+              "cr": 1,
+              "t": "○",
+              "note": "冬学期。履修者上限60名で、MDコース2年生と過年度生が優先。コミュニケーションデザイン演習Ⅱとの関係から、MDコース生は2年次の履修を推奨(時間割PDFの注記)"
+            },
+            {
+              "n": "広告クリエーティブデザイン",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "情報デザイン",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "インタラクションデザイン",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "フィジカルメディアデザイン",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "バーチャルリアリティ",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "コンピュータグラフィックス",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "ウェブサービスデザイン",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "ディジタル信号処理",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "メディア情報処理",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "コンテンツ工学",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "AIプログラミング",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "フィジカルコンピューティングとIoT",
+              "cr": 1,
+              "t": "○"
+            },
+            {
+              "n": "視覚心理学",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "色彩学",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "心理学的思考法",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "言葉とコミュニケーション",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "演劇文化論",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "知的財産法",
+              "cr": 2,
+              "t": "○"
+            },
+            {
+              "n": "知覚心理学",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "知覚心理学測定法",
+              "cr": 2,
+              "t": "",
+              "note": "前提科目: 知覚心理学(便覧p.45)"
+            },
+            {
+              "n": "Start-ups and Global Disruptors",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "Global Design Innovations",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "Design Pitching Skills",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "Intellectual Property Rights : Global Perspective",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインAⅠ",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインAⅡ",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインAⅢ",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインAⅣ",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインBⅠ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインBⅡ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインBⅢ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "国際メディアデザインBⅣ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "インターンシップ（学部）Ⅰ",
+              "cr": 1,
+              "t": ""
+            },
+            {
+              "n": "インターンシップ（学部）Ⅱ",
+              "cr": 1,
+              "t": ""
+            }
+          ]
+        },
+        {
+          "id": "sk-pbl",
+          "name": "コース演習科目(PBL)・融合プロジェクト",
+          "req": 20,
+          "courses": [
+            {
+              "n": "メディアデザイン総合プロジェクトⅠ",
+              "cr": 2,
+              "t": "◎"
+            },
+            {
+              "n": "メディアデザイン総合プロジェクトⅡ",
+              "cr": 2,
+              "t": "◎"
+            },
+            {
+              "n": "コンテンツデザイン演習Ⅰ",
+              "cr": 2,
+              "t": "",
+              "note": "前提科目: 映像表現およびアニメーション表現(便覧p.45)"
+            },
+            {
+              "n": "コンテンツデザイン演習Ⅱ",
+              "cr": 2,
+              "t": "",
+              "note": "前提科目あり: ゲームデザインなど(便覧p.45の表で確認)"
+            },
+            {
+              "n": "造形表現演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "数理造形と表現演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "コミュニケーションデザイン演習Ⅰ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "コミュニケーションデザイン演習Ⅱ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "コンテンツインタラクション演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "実世界インタラクション演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "クリエーティブ発想演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "クリエーティブプロトタイピング演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "メディアサイエンス演習Ⅰ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "メディアサイエンス演習Ⅱ",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "比較演劇・メディア文化演習",
+              "cr": 2,
+              "t": ""
+            },
+            {
+              "n": "知的財産マネジメント演習",
+              "cr": 2,
+              "t": "",
+              "note": "前提科目: 知的財産法(便覧p.45)"
+            },
+            {
+              "n": "コース融合プロジェクトＡ",
+              "cr": 4,
+              "t": ""
+            },
+            {
+              "n": "コース融合プロジェクトＢ",
+              "cr": 4,
+              "t": ""
+            }
+          ]
+        },
+        {
+          "id": "sk-sin",
+          "name": "深化・展開科目",
+          "req": 12,
+          "derived": true,
+          "note": "コース専門・演習の最低単位を超えた分 + 他コースの専門・演習科目。うち4単位以上は他コースの科目"
+        },
+        {
+          "id": "sk-res",
+          "name": "卒業研究・設計",
+          "req": 8,
+          "courses": [
+            {
+              "n": "卒業研究Ⅰ",
+              "cr": 4,
+              "t": "◎"
+            },
+            {
+              "n": "卒業研究Ⅱ",
+              "cr": 4,
+              "t": "◎"
+            }
+          ]
+        }
+      ]
+    },
+    "rules": [
+      "3年次以降の専攻教育科目を履修するには、2年次終了までに45単位を修得(基幹教育の必修的な区分の卒業要件単位を満たし、かつデザインリテラシー基礎を修得していること)",
+      "卒業研究の着手条件: 3年次終了時に総修得104単位以上、基幹教育科目は高年次基幹教育を除いて修得済み、デザインリテラシー科目8単位・コース基礎科目7単位・コース演習科目(PBL)4単位(メディアデザイン総合プロジェクトⅠ・Ⅱ)を修得していること"
+    ],
+    "source": "令和8(2026)年度 芸術工学部学生便覧 pp.4-6, 27-34, 45と、後期学部授業時間割(2026/9/7版)の注記から手で転記。必ず便覧・掲示で確認してください"
+  },
+  {
+    "course": "芸術工学部 芸術工学科 音響設計コース",
+    "total": 128.0,
+    "kiban": {
+      "total": 48.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 20,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 1.0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 4,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 80.0,
+      "groups": []
+    },
+    "rules": []
+  },
+  {
+    "course": "農学部",
+    "total": 130.5,
+    "kiban": {
+      "total": 53.0,
+      "groups": [
+        {
+          "id": "kb-sem",
+          "name": "基幹教育セミナー",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-kd",
+          "name": "課題発見科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-ga",
+          "name": "学術アプローチ科目",
+          "req": 1.0,
+          "manual": true
+        },
+        {
+          "id": "kb-en",
+          "name": "第1外国語(英語)",
+          "req": 8.0,
+          "match": "言語文化・英語"
+        },
+        {
+          "id": "kb-l2",
+          "name": "第2外国語",
+          "req": 4.0,
+          "match": "言語文化・(ドイツ|フランス|中国|ロシア|スペイン|韓国)語"
+        },
+        {
+          "id": "kb-bun",
+          "name": "文系ディシプリン",
+          "req": 4.0,
+          "match": "文D"
+        },
+        {
+          "id": "kb-ri",
+          "name": "理系ディシプリン",
+          "req": 27.0,
+          "match": "理D"
+        },
+        {
+          "id": "kb-cy",
+          "name": "サイバーセキュリティ",
+          "req": 1.0,
+          "match": "サイバー"
+        },
+        {
+          "id": "kb-hs",
+          "name": "健康・スポーツ",
+          "req": 1.0,
+          "match": "健スポ"
+        },
+        {
+          "id": "kb-so",
+          "name": "総合科目",
+          "req": 0,
+          "match": "総合"
+        },
+        {
+          "id": "kb-hi",
+          "name": "高年次基幹教育",
+          "req": 2.0,
+          "match": "高年次"
+        },
+        {
+          "id": "kb-ot",
+          "name": "その他",
+          "req": 2.0,
+          "other": true
+        }
+      ]
+    },
+    "senkou": {
+      "total": 77.5,
+      "groups": []
+    },
+    "rules": []
+  }
+]
