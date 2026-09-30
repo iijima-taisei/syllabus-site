@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.tmp
+.venv/
+*.pdf
+data/raw/
+data/unparsed/
+data/plan_probe_*.html
+data/plan_sample_*.html
