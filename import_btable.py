@@ -55,6 +55,13 @@ def norm_dash(s):
     return re.sub(r"[‒‑–—−﹣－]", "-", s)
 
 
+CLASS_MAX = {"I1": 3, "L1": 14}   # I1-1〜3 / L1-1〜14 まで。超える番号は S1(理・医・工・芸工・農)の続き(例「L1-5、28、29」)
+
+
+def pre_of(cur, n):
+    return "S1" if cur in CLASS_MAX and n > CLASS_MAX[cur] else cur
+
+
 def expand_classes(raw):
     """「S1‒8～10、16～18、L1‒1～4」→ ({'S1-8',...}, {'ALL'...})"""
     s = norm_dash(raw.replace("\u3000", " "))
@@ -76,9 +83,9 @@ def expand_classes(raw):
         m = re.match(r"^(\d+)[～〜~∼-](\d+)$", tok)
         if m:
             a, b = int(m.group(1)), int(m.group(2))
-            out.update(f"{cur}-{i}" for i in range(a, b + 1))
+            out.update(f"{pre_of(cur, i)}-{i}" for i in range(a, b + 1))
         elif re.fullmatch(r"\d+", tok):
-            out.add(f"{cur}-{tok}")
+            out.add(f"{pre_of(cur, int(tok))}-{tok}")
     return sorted(out, key=lambda x: (x[:2], int(x.split("-")[1]))), sorted(flags)
 
 
