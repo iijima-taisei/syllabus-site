@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
 <title>九大シラバス</title>
 <style>
+.sitefoot{max-width:760px;margin:24px auto;padding:0 16px 32px;color:var(--sub);font-size:12px;line-height:1.6}
 :root{--bg:#f2f5f8;--card:#fff;--ink:#17212b;--sub:#5d6b79;--line:#d8dee5;--ac:#123f80;--acbg:#e2ebf7}
 @media(prefers-color-scheme:dark){:root{--bg:#10151b;--card:#18202a;--ink:#e6ebf0;--sub:#93a1b0;--line:#2b3644;--ac:#8db4ee;--acbg:#1e2d44}}
 *{box-sizing:border-box}
@@ -202,6 +204,7 @@ a.rel.cmp{padding:10px 12px;border:1px solid var(--line);border-radius:10px;text
 <div class="row" id="days"></div>
 </div></div></header>
 <main><div class="wrap" id="view"></div></main>
+<footer class="sitefoot">非公式の閲覧サイトです。九州大学とは関係ありません。出典: Campusmate(九大シラバス)・履修資料(B表・学生便覧)。内容は正確とは限らないため、履修の判断は必ず公式の情報で確認してください。最終更新: 2026年10月1日</footer>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
