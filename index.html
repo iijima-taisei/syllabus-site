@@ -19,6 +19,7 @@ input,select{font:inherit;color:inherit;background:var(--bg);border:1px solid va
 #q{width:100%}
 .row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
 .row select{flex:1 1 30%}
+#tcls{flex:1 1 100%;order:5}
 .chip{border:1px solid var(--line);background:var(--bg);color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-size:.9rem;cursor:pointer}
 .chip[aria-pressed=true]{background:var(--ac);color:var(--card);border-color:var(--ac)}
 main{padding:12px 12px calc(40px + env(safe-area-inset-bottom))}
@@ -87,7 +88,7 @@ h1{font-weight:700}
 .sechead{display:flex;align-items:center;justify-content:space-between}
 .sechead h2,h2.lh{font-size:1.15rem;font-weight:700;margin:.2em 0}
 .lnk{border:0;background:none;color:var(--ac);font:inherit;font-size:.9rem;min-height:44px;padding:0 0 0 12px;cursor:pointer}
-#hmore{padding:0}.hist{margin-bottom:22px}
+#hmore{padding:0}.hist{margin-bottom:14px;border-bottom:1px solid var(--line)}.hist summary{cursor:pointer;font-weight:700;padding:10px 0;color:var(--sub)}.hist summary small{font-weight:400}
 .hero{background:none;border:0;border-radius:0;padding:8px 0 0;margin-bottom:0}
 .hero h2{font-size:1.8rem;font-weight:700;line-height:1.4}
 .pill{background:none;border:1px solid var(--sub);color:var(--ink)}
@@ -154,7 +155,7 @@ h1{font-weight:700}
 .nav{display:flex;gap:2px;margin:0 0 4px;overflow-x:auto;scrollbar-width:none}
 .nav a{flex:none;text-decoration:none;color:var(--sub);padding:6px 12px;border-bottom:3px solid transparent;font-size:.92rem}
 .nav a.on{color:var(--ac);border-bottom-color:var(--ac);font-weight:700}
-.tt{display:grid;grid-template-columns:30px repeat(5,minmax(0,1fr));gap:3px;margin:8px 0}
+.tt{scroll-margin-top:calc(var(--hh,0px) + 8px);display:grid;grid-template-columns:30px repeat(5,minmax(0,1fr));gap:3px;margin:8px 0}
 .th{text-align:center;font-weight:700;color:var(--ac);padding:4px 0}
 .tl{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub);line-height:1.2}
 .tl b{font-size:.95rem;color:var(--ink)}.tl small{font-size:.58rem}
@@ -168,7 +169,8 @@ h1{font-weight:700}
 .cell.rq .cc i{background:var(--ok)}
 .tlg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--sub);margin:-2px 0 6px}.tlg i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid;vertical-align:-1px;margin-right:4px}
 .fr{margin:auto;color:var(--mute);font-size:.8rem}
-.panel{border-top:1px solid var(--line);margin-top:14px;padding-top:4px}
+.panel{border-top:1px solid var(--line);margin-top:14px;padding-top:4px;scroll-margin-top:calc(var(--hh,0px) + 8px)}
+.panel h3 .lnk{float:right;font-size:.85rem}
 .panel h3{font-size:1.1rem;font-weight:700;margin:10px 0 4px}.panel h3 small{font-weight:400;color:var(--sub);font-size:.8rem}
 .panel h4{font-size:.85rem;color:var(--sub);margin:12px 0 2px}
 .pi{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
@@ -322,6 +324,7 @@ function filtered(){
   });
 }
 const HKEY='kyudai-syllabus-history';
+let histOpen=false;
 function histGet(){try{const a=JSON.parse(localStorage.getItem(HKEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
 function histAdd(code){try{localStorage.setItem(HKEY,JSON.stringify([code,...histGet().filter(x=>x!==code)].slice(0,30)))}catch(e){}}
 function histClear(){try{localStorage.removeItem(HKEY)}catch(e){}}
@@ -335,12 +338,13 @@ function renderList(){
   const hist=histGet().map(x=>byCode[x]).filter(Boolean);
   let h='';
   if(!active&&hist.length){
-    h+=`<section class="hist"><div class="sechead"><h2>最近見た講義</h2><button class="lnk" id="hclear" type="button">履歴を消す</button></div>${hist.slice(0,histAll?30:5).map(itemHTML).join('')}${hist.length>5&&!histAll?'<button class="lnk" id="hmore" type="button">もっと見る</button>':''}</section>`;
+    h+=`<details class="hist"${histOpen?' open':''}><summary>最近見た講義 <small>${hist.length}件</small></summary><div class="sechead"><span></span><button class="lnk" id="hclear" type="button">履歴を消す</button></div>${hist.slice(0,histAll?30:5).map(itemHTML).join('')}${hist.length>5&&!histAll?'<button class="lnk" id="hmore" type="button">もっと見る</button>':''}</details>`;
   }
   h+=`<section><h2 class="lh">講義一覧</h2><p class="count">${r.length}件　${p.get('all')?'全学部':'基幹教育・芸術工学部'}<button class="lnk" id="scope" type="button">${p.get('all')?'基幹教育・芸術工学部のみ':'すべての学部を表示'}</button></p>${mineOn()?`<p class="count">${esc(CLS)} で受講できる授業(B表 前期${esc(BTV['前期']||'-')}・後期${esc(BTV['後期']||'-')}版で判定)</p>`:''}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
   v.innerHTML=h;
   const m=$('#more');m&&(m.onclick=()=>{shown+=100;renderList()});
   $('#scope').onclick=()=>setP('all',params().get('all')?'':'1');
+  const hd=$('details.hist');hd&&hd.addEventListener('toggle',()=>{histOpen=hd.open});
   const hc=$('#hclear');hc&&(hc.onclick=()=>{histClear();renderList()});
   const hm=$('#hmore');hm&&(hm.onclick=()=>{histAll=true;renderList()});
 }
@@ -696,7 +700,7 @@ function renderTT(){
   h+=atb+(REQSET.size?'<p class="tlg"><span><i style="background:var(--okbg);border-color:var(--ok)"></i>必修</span><span><i style="background:var(--acbg);border-color:var(--ac)"></i>選択・その他</span><span><i style="background:var(--wnbg);border-color:var(--ng)"></i>重複</span></p>':'')+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
   if(sel){
     const [d,pp]=sel.split('-'),cands=(idx.get(sel)||[]).slice().sort((a,b)=>a.n.localeCompare(b.n,'ja')),os=occ.get(sel)||[];
-    h+=`<section class="panel"><h3>${esc(d)}曜 ${esc(pp)}限 <small>${TIMES[pp]||''}〜　${term}</small></h3>`;
+    h+=`<section class="panel"><h3>${esc(d)}曜 ${esc(pp)}限 <small>${TIMES[pp]||''}〜　${term}</small><button class="lnk" type="button" data-totop="1">↑ 時間割に戻る</button></h3>`;
     if(os.length)h+=`<h4>入れてある授業</h4>`+os.map(({c})=>planRow(c,'plan')).join('');
     h+=`<h4>この枠で取れる授業 ${cands.length}件</h4>`;
     h+=cands.length?cands.slice(0,80).map(c=>candRow(c,term)).join('')+(cands.length>80?`<p class="note">先頭80件を表示。抽選なし・クラス設定で絞れます。</p>`:''):'<p class="note">該当する授業がありません。</p>';
@@ -929,14 +933,15 @@ function rerender(){
 function bumpTT(code){/* 追加・削除のあと、同じ画面を描き直す */rerender()}
 $('#view').addEventListener('click',e=>{
   const t=e.target,by=s=>t.closest(s);let b;
-  if(b=by('[data-cell]')){const p=params(),k=b.dataset.cell;p.get('s')===k?p.delete('s'):p.set('s',k);history.replaceState(null,'','#/t?'+p);const y=scrollY;renderTT();scrollTo(0,y);return}
+  if(b=by('[data-totop]')){document.querySelector('.tt').scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(b=by('[data-cell]')){const p=params(),k=b.dataset.cell;p.get('s')===k?p.delete('s'):p.set('s',k);history.replaceState(null,'','#/t?'+p);const y=scrollY,opening=p.get('s')===k;renderTT();scrollTo(0,y);if(opening){const pn=document.querySelector('.panel');if(pn)pn.scrollIntoView({behavior:'smooth',block:'start'})}return}
   if(b=by('[data-tt]')){const p=params();p.set('t',b.dataset.tt);p.delete('s');history.replaceState(null,'','#/t?'+p);renderTT();return}
   if(b=by('[data-nolot]')){const p=params();p.get('nolot')?p.delete('nolot'):p.set('nolot','1');history.replaceState(null,'','#/t?'+p);renderTT();return}
   if(b=by('[data-add]')){const y=scrollY;setPlan(b.dataset.add,'plan');renderTT();scrollTo(0,y);return}
   if(b=by('[data-rm]')){const y=scrollY;setPlan(b.dataset.rm,'');bumpTT();scrollTo(0,y);return}
   if(b=by('[data-done]')){const y=scrollY;setPlan(b.dataset.done,'done');bumpTT();scrollTo(0,y);return}
   if(b=by('[data-back]')){const y=scrollY;setPlan(b.dataset.back,'plan');bumpTT();scrollTo(0,y);return}
-  if(b=by('[data-set]')){setPlan(b.dataset.code,b.dataset.set);const c=BYC[b.dataset.code];const box=$('#relbox');if(c&&box)box.outerHTML=planBoxHTML(c);return}
+  if(b=by('[data-set]')){if(b.dataset.set==='plan'&&CLS&&BYC[b.dataset.code]&&elig(BYC[b.dataset.code])==='no'&&!confirm(clsName(CLS)+' では対象外の授業です。それでも履修予定に入れますか?'))return;setPlan(b.dataset.code,b.dataset.set);const c=BYC[b.dataset.code];const box=$('#relbox');if(c&&box)box.outerHTML=planBoxHTML(c);return}
   if(b=by('#pimg')){try{ttImage(params().get('t')||defTerm())}catch(err){console.error(err);alert('画像を作れませんでした')}return}
   if(b=by('#patb')){const at=reqFor();if(at){at.codes.forEach(c=>{if(!PL.p[c])PL.p[c]='plan'});plSave();renderTT()}return}
   if(b=by('#pclr')){if(confirm('履修プランを全部消しますか?(卒業要件の手入力は残ります)')){PL.p={};plSave();renderTT()}return}
