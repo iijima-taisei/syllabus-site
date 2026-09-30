@@ -760,6 +760,7 @@ async function renderCmp(){
   }
   const sortKey=p.get('o')||'name',mine=CLS&&p.get('mine')!=='0';
   let cs=pool().filter(c=>nameKey(c.n)===n);
+  if(!cs.length)cs=pool().filter(c=>nameKey(c.n).startsWith(n));
   const total=cs.length;
   if(mine)cs=cs.filter(c=>!c.b||elig(c)!=='no');
   v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(CLS)} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(CLS)}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
