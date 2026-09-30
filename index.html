@@ -161,6 +161,7 @@ h1{font-weight:700}
 .tl b{font-size:.95rem;color:var(--ink)}.tl small{font-size:.58rem}
 .cell{min-height:92px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
 .cell.has{background:var(--acbg);border-color:var(--ac)}
+.cgrp{border-bottom:1px solid var(--line)}.cgrp>summary{cursor:pointer;padding:9px 0;line-height:1.4}.cgrp>.lnk{display:block;padding:0 0 4px;min-height:0}.cgrp .pi{padding-left:10px;border-left:3px solid var(--line);border-bottom:0}
 .cmph{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cmph .cpb{margin-left:auto}
 .cell.multi .cc{font-size:.72rem;-webkit-line-clamp:2}
 .cell.has.rq{background:var(--okbg);border-color:var(--ok)}
@@ -701,6 +702,18 @@ function candRow(c,term){
   const cf=clashes(c,term);
   return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
 }
+// 同じ科目名が複数(クラス・教員違い)ある候補は1行にまとめて、開くと一覧が出る
+function candList(cands,term,limit){
+  const g=new Map();
+  cands.forEach(c=>{const k=nameKey(c.n);(g.get(k)||g.set(k,[]).get(k)).push(c)});
+  const arr=[...g.values()].sort((a,b)=>a[0].n.localeCompare(b[0].n,'ja'));
+  const html=arr.slice(0,limit).map(a=>{
+    if(a.length===1)return candRow(a[0],term);
+    const free=a.filter(c=>!clashes(c,term)).length,n0=a[0].n;
+    return `<details class="cgrp"><summary><b>${esc(n0)}</b> <span class="tag s">${a.length}クラス</span>${free<a.length?` <span class="tag w">重複なし ${free}</span>`:''}</summary><a class="lnk" href="#/w?n=${encodeURIComponent(nameKey(n0))}&mine=0">成績配分で比べる →</a>${a.sort((x,y)=>x.t.localeCompare(y.t,'ja')).map(c=>candRow(c,term)).join('')}</details>`;
+  }).join('');
+  return {html,groups:arr.length,more:arr.length>limit};
+}
 function planRow(c,st){
   return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${crOf(c)?`　${crOf(c)}単位`:''}</span></a><span class="pib">${st==='plan'?`<button type="button" class="chip" data-done="${esc(c.c)}">修得済みにする</button>`:`<button type="button" class="chip" data-back="${esc(c.c)}">予定に戻す</button>`}<button type="button" class="chip" data-rm="${esc(c.c)}">外す</button></span></div>`;
 }
@@ -725,8 +738,9 @@ function renderTT(){
     const [d,pp]=sel.split('-'),cands=(idx.get(sel)||[]).slice().sort((a,b)=>a.n.localeCompare(b.n,'ja')),os=occ.get(sel)||[];
     h+=`<section class="panel"><h3>${esc(d)}曜 ${esc(pp)}限 <small>${TIMES[pp]||''}〜　${term}</small><button class="lnk" type="button" data-totop="1">↑ 時間割に戻る</button></h3>`;
     if(os.length)h+=`<h4>入れてある授業</h4>`+os.map(({c})=>planRow(c,'plan')).join('');
-    h+=`<h4>この枠で取れる授業 ${cands.length}件</h4>`;
-    h+=cands.length?cands.slice(0,80).map(c=>candRow(c,term)).join('')+(cands.length>80?`<p class="note">先頭80件を表示。抽選なし・クラス設定で絞れます。</p>`:''):'<p class="note">該当する授業がありません。</p>';
+    const cl=candList(cands,term,60);
+    h+=`<h4>この枠で取れる授業 ${cl.groups}科目${cl.groups!==cands.length?`(${cands.length}クラス)`:''}</h4>`;
+    h+=cands.length?cl.html+(cl.more?`<p class="note">先頭60科目を表示。抽選なし・クラス設定で絞れます。</p>`:''):'<p class="note">該当する授業がありません。</p>';
     h+='</section>';
   }
   const ws=warnings(term);
