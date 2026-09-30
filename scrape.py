@@ -540,6 +540,47 @@ def detail_ok(d):
     return any(isinstance(v, dict) and ("全文" in v or any(k in v for k in NAME_KEYS)) for v in s.values())
 
 
+ART_COURSES = [("28", "環境設計"), ("29", "インダストリアル"), ("30", "未来構想|未来"), ("31", "メディア"), ("32", "音響")]
+
+
+def _courses_in(text):
+    return [k for k, kw in ART_COURSES if re.search(kw, text)]
+
+
+def _years(g):
+    g = g.replace("～", "-").replace("~", "-")
+    m = re.search(r"(\d)\s*-\s*(\d)", g)
+    if m:
+        return list(range(int(m.group(1)), int(m.group(2)) + 1))
+    return sorted({int(d) for d in re.findall(r"[1-4]", g)})
+
+
+def art_targets(o):
+    """芸術工学部の科目の対象コース・学年・必修選択を読む。
+    cx = {コース番号(28環境 29ID 30未来 31メディア 32音響): h=必修 / s=選択必修 / e=選択}, yr = 対象学年のリスト(空=全学年)"""
+    tg = re.split(r"[A-Za-z]", o.get("対象学部等", ""), 1)[0]
+    targets = _courses_in(tg) or [k for k, _ in ART_COURSES]
+    rq = re.split(r"[A-Za-z]", o.get("必修選択", ""), 1)[0]
+    code = {"必修": "h", "選択必修": "s", "選択": "e"}
+    cx = {}
+    segs = re.findall(r"(選択必修|選択|必修)\s*[:：]\s*(.*?)(?=(?:選択必修|選択|必修)\s*[:：]|$)", rq, re.S)
+    if segs:
+        for kind, body in segs:
+            hit = _courses_in(body)
+            if "以外" in body:
+                hit = [k for k, _ in ART_COURSES if k not in hit]
+            for k in hit:
+                cx[k] = code[kind]
+        for k in targets:
+            cx.setdefault(k, "e")
+    else:
+        m = re.match(r"\s*(選択必修|選択|必修)", rq)
+        for k in targets:
+            cx[k] = code[m.group(1)] if m else "e"
+    g = re.split(r"[A-Za-z]", o.get("対象学年", ""), 1)[0]
+    return {"cx": cx, "yr": [] if "全学年" in g else _years(g)}
+
+
 def enrich(row, detail):
     s = detail.get("sections", {})
     o = next((v for k, v in s.items() if "概要" in k), {})
@@ -547,6 +588,8 @@ def enrich(row, detail):
     row.update(cat=o.get("学部カテゴリ", ""), kbn=o.get("授業科目区分", ""), lang=o.get("使用言語", ""),
                credit=o.get("単位数", ""), campus=o.get("開講地区", ""), grade=o.get("対象学年", ""),
                kw=p.get("キーワード", ""))
+    if row["cat"] == "芸術工学部":
+        row.update(art_targets(o))
     # 全文形式のページ: 本文から拾えるものだけ拾う
     full = o.get("全文", "")
     if full:
