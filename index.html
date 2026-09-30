@@ -552,7 +552,7 @@ function route(){
 $('#q').addEventListener('input',e=>setP('q',e.target.value));
 for(const id of ['sem','cat','sub','per'])$('#'+id).addEventListener('change',e=>setP(id,e.target.value));
 $('#sems').addEventListener('click',e=>{const b=e.target.closest('[data-s]');b&&setP('sem',params().get('sem')===b.dataset.s?'':b.dataset.s)});
-$('#cls').addEventListener('change',e=>{CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}shown=100;syncCtl();renderList()});
+$('#cls').addEventListener('change',e=>{try{localStorage.removeItem('kyudai-syllabus-gcourse')}catch(_){}CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}shown=100;syncCtl();renderList()});
 $('#mine').addEventListener('click',()=>{if(!CLS){$('#cls').focus();return}setP('mine',mineOn()?'0':'')});
 $('#nolot').addEventListener('click',()=>setP('nolot',params().get('nolot')?'':'1'));
 $('#place').addEventListener('change',e=>setP('place',e.target.value));
@@ -572,7 +572,7 @@ $('#view').addEventListener('click',e=>{
 const PKEY='kyudai-syllabus-plan';
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem(PKEY)||'{}');return{p:o.p||{},adj:o.adj||{},md:o.md||{}}}catch(e){return{p:{},adj:{},md:{}}}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null,ATABLE=null;const SER=new Map();
+let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null;const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -874,9 +874,12 @@ function stepper(id,val,label){
 function renderGrad(){
   const v=$('#view');$('#ctl').hidden=true;
   if(!MDREQ){v.innerHTML='<h2 class="lh">卒業要件</h2><p class="note">data/mdreq.json が読み込めません。data フォルダに置いてください。</p>';return}
-  const ck=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
-  const warn=ck&&ck!=='31'&&ck!=='33'?`<p class="wl warn">いま選んでいるクラスは${esc(clsName(CLS))}ですが、この画面の卒業要件は<b>メディアデザインコース用</b>の内容です。他のコースの要件データはまだありません。</p>`:'';
-  const R=MDREQ;let out=warn+`<h2 class="lh">卒業要件 <small>${esc(R.course)}</small></h2><p class="srcnote">${esc(R.source)}</p>`;
+  const GK='kyudai-syllabus-gcourse',clsKey=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
+  let gk='';try{gk=localStorage.getItem(GK)||''}catch(e){}
+  if(!ARTC[gk])gk=clsKey&&ARTC[clsKey]?clsKey:'31';
+  const R=gk==='31'||!COURSEREQ||!COURSEREQ[gk]?MDREQ:COURSEREQ[gk];
+  const sel=`<div class="row"><select id="gcourse" aria-label="コース">${Object.entries(ARTC).map(([k,n])=>`<option value="${k}"${k===gk?' selected':''}>${n}コース</option>`).join('')}</select></div>`+(clsKey&&ARTC[clsKey]||!CLS?'':'');
+  let out=`<h2 class="lh">卒業要件 <small>${esc(R.course)}</small></h2>${sel}<p class="srcnote">${esc(R.source)}</p>`;
   let doneAll=0,planAll=0;
   // --- 基幹教育
   const K=R.kiban;let kd=0,kp=0,excess=0;const kr=[];
@@ -912,12 +915,12 @@ function renderGrad(){
     doneAll+=cap;planAll+=Math.min(d+pl,g.req)-cap;
     hs+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${d}${pl?`(+${pl})`:''} / ${g.req}${d>=g.req?' ✓':''}</span></div>${bar(d,pl,g.req)}${g.note?`<p class="srcnote">${esc(g.note)}</p>`:''}${body}</div>`;
   }
-  const dg=S.groups.find(g=>g.derived),oth=PL.adj['sk-other']||0;
-  const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-25)+Math.max(0,(gs['sk-pbl']||{d:0}).d-20)+oth;
-  const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-25)+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-20)+oth-exD;
+  const dg=S.groups.find(g=>g.derived),oth=PL.adj['sk-other']||0,OM=R.otherMin||4,SR=id=>(S.groups.find(g=>g.id===id)||{req:0}).req;
+  const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-SR('sk-sen'))+Math.max(0,(gs['sk-pbl']||{d:0}).d-SR('sk-pbl'))+oth;
+  const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-SR('sk-sen'))+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-SR('sk-pbl'))+oth-exD;
   const dd=Math.min(dg.req,exD),dp=Math.min(dg.req-dd,Math.max(0,exP));
   doneAll+=dd;planAll+=dp;
-  hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=4?'(4単位以上の条件を満たしています)':'(4単位以上が必要)'}</p></div></section>`;
+  hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=OM?`(${OM}単位以上の条件を満たしています)`:`(${OM}単位以上が必要)`}</p></div></section>`;
   const tD=kd+doneAll,tP=kp+planAll;
   out+=`<section class="gsec total"><h3>合計 <small>卒業要件 ${R.total}単位</small></h3><div class="big">${tD}<small> / ${R.total}単位 修得済み${tP?`(予定を入れると ${tD+tP})`:''}</small></div>${bar(tD,tP,R.total)}<p class="srcnote">各区分は上限(必要単位)までを数えています。あと ${Math.max(0,R.total-tD)}単位。</p></section>`+hk+hs;
   out+=`<section class="gsec"><h3>履修条件・注意</h3>${R.rules.map(r=>`<p class="srcnote" style="font-size:.85rem">${esc(r)}</p>`).join('')}<p class="srcnote">単位は履修プランの「修得済み」「履修予定」と、この画面の手入力から集計しています。正式な確認は学務システム・便覧で行ってください。</p></section>`;
@@ -970,14 +973,15 @@ $('#view').addEventListener('change',e=>{
     }).catch(()=>alert('読み込めませんでした。書き出したファイル(JSON)を選んでください。'));
     e.target.value='';return;
   }
-  if(e.target.id==='tcls'){CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}renderTT()}
+  if(e.target.id==='gcourse'){try{localStorage.setItem('kyudai-syllabus-gcourse',e.target.value)}catch(_){}renderGrad();return}
+  if(e.target.id==='tcls'){try{localStorage.removeItem('kyudai-syllabus-gcourse')}catch(_){}CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}renderTT()}
 });
 function initFeatures(){
   BYC=Object.fromEntries(DATA.map(c=>[c.c,c]));
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;MDREQ=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr])=>{DATA=j;MDREQ=md;ATABLE=at;COURSEREQ=cr;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
 </script>
 </body>
 </html>
