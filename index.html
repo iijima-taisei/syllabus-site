@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>九大シラバス</title>
 <style>
+#ctl.cc{display:none}#ctlbar{padding:4px 0}
 .sitefoot{max-width:760px;margin:24px auto;padding:0 16px 32px;color:var(--sub);font-size:12px;line-height:1.6}
 :root{--bg:#f2f5f8;--card:#fff;--ink:#17212b;--sub:#5d6b79;--line:#d8dee5;--ac:#123f80;--acbg:#e2ebf7}
 @media(prefers-color-scheme:dark){:root{--bg:#10151b;--card:#18202a;--ink:#e6ebf0;--sub:#93a1b0;--line:#2b3644;--ac:#8db4ee;--acbg:#1e2d44}}
@@ -193,6 +194,7 @@ a.rel.cmp{padding:10px 12px;border:1px solid var(--line);border-radius:10px;text
 <h1 id="h1"><a href="#/">九大シラバス</a> <small class="ver">v0930-時間割</small></h1>
 <nav id="nav" class="nav" hidden></nav>
 <div id="dbar" hidden><button id="bk" type="button" aria-label="前の画面に戻る">‹ 戻る</button><span id="dtitle"></span></div>
+<div id="ctlbar" hidden><button class="chip" id="ctlt" type="button">検索・絞り込みを開く ▾</button></div>
 <div id="ctl" hidden>
 <input id="q" type="search" placeholder="講義名・教員・キーワード" autocomplete="off">
 <div class="row" id="sems"></div>
@@ -223,7 +225,11 @@ const CLASSDEF=[['共創学部',[['I1-1',''],['I1-2',''],['I1-3','']]],
  ['歯学部',[['S1-11','']]],['薬学部',[['S1-12','創薬科学'],['S1-13','臨床薬学']]],
  ['工学部',[['S1-14','Ⅰ群'],['S1-15','Ⅰ群'],['S1-16','Ⅱ群'],['S1-17','Ⅱ群'],['S1-18','Ⅱ群'],['S1-19','Ⅲ群'],['S1-20','Ⅲ群'],['S1-21','Ⅲ群'],['S1-22','Ⅳ群'],['S1-23','Ⅳ群'],['S1-24','Ⅴ群(建築)'],['S1-25','Ⅵ群'],['S1-26','Ⅵ群'],['S1-27','Ⅵ群']]],
  ['芸術工学部',[['S1-28','環境設計'],['S1-29','インダストリアルデザイン'],['S1-30','未来構想デザイン'],['S1-31','メディアデザイン'],['S1-32','音響設計'],['S1-33','学科一括']]],
- ['農学部',[['S1-34',''],['S1-35',''],['S1-36',''],['S1-37','']]]];
+ ['農学部',[['S1-34',''],['S1-35',''],['S1-36',''],['S1-37','']]],
+ ['芸術工学部 2〜4年',[28,29,30,31,32].flatMap(k=>[2,3,4].map(y=>['D'+k+'-'+y,'']))]];
+const ARTC={28:'環境設計',29:'インダストリアルデザイン',30:'未来構想デザイン',31:'メディアデザイン',32:'音響設計'};
+const clsName=v=>{const m=/^D(\d\d)-(\d)$/.exec(v||'');return m?ARTC[m[1]]+' '+m[2]+'年':v};
+const upM=()=>/^D(\d\d)-(\d)$/.exec(CLS||'');
 const CKEY='kyudai-syllabus-class';
 let CLS=(()=>{try{return localStorage.getItem(CKEY)||''}catch(e){return ''}})();
 let BT=null,BTV={};
@@ -231,7 +237,15 @@ let BT=null,BTV={};
 const mineOn=()=>!!CLS&&params().get('mine')!=='0';
 // 受講可否: yes / no / intl(留学生向け) / unk(B表の対象外の科目) / nodata(基幹教育なのにB表に無い=1年生用ではない)
 function elig(c){
-  const b=c.b;
+  const b=c.b,um=upM();
+  if(um){   // 芸術工学部 2〜4年: 芸工の科目は「対象コース・学年」、基幹教育はB表の全学年・高年次だけ
+    const y=+um[2];
+    if(c.cx)return c.cx[um[1]]&&(!c.yr.length||c.yr.includes(y))?'yes':'no';
+    if(b){if(b.fl.includes('ALL'))return /・日本語】/.test(b.cat)?'intl':'yes';return b.fl.includes('HIGH')&&y>=3?'yes':'no'}
+    return /基幹教育/.test(c.cat||'')?'nodata':'unk';
+  }
+  const sm=/^S1-(\d\d)$/.exec(CLS||'');
+  if(c.cx&&sm&&+sm[1]>=28&&+sm[1]<=33)return (sm[1]==='33'?Object.keys(c.cx).length:c.cx[sm[1]])&&(!c.yr.length||c.yr.includes(1))?'yes':'no';
   if(!b)return /基幹教育/.test(c.cat||'')?'nodata':'unk';
   if(b.cs.includes(CLS))return 'yes';
   if(b.fl.includes('ALL'))return /・日本語】/.test(b.cat)?'intl':'yes';
@@ -249,13 +263,14 @@ function badgeHTML(c){
   if(placeOf(c)==='遠隔')h+=' <span class="tag w">遠隔</span>';
   if(/→/.test(b.room))h+=` <span class="tag w">教室変更 ${esc(b.room)}</span>`;
   if(/履修登録不可/.test(b.note))h+=' <span class="tag w">別途申請</span>';
+  if(CLS&&c.cx){const k=(upM()||/^S1-(\d\d)$/.exec(CLS)||[])[1],r=k&&c.cx[k];if(r==='h')h+=' <span class="tag w">必修</span>';else if(r==='s')h+=' <span class="tag w">選択必修</span>'}
   if(CLS){const e=elig(c);if(e==='no')h+=' <span class="tag no">対象外</span>';if(e==='intl')h+=' <span class="tag w">留学生向け</span>'}
   return h;
 }
 function condHTML(c){
   const b=c.b;if(!b)return '';
   const e=CLS?elig(c):'';
-  const verdict=e==='yes'?`<b class="ok">${esc(CLS)} は受講できます</b>`:e==='no'?`<b class="ng">${esc(CLS)} は対象外です</b>`:e==='intl'?'<b>留学生向けの科目です</b>':'';
+  const verdict=e==='yes'?`<b class="ok">${esc(clsName(CLS))} は受講できます</b>`:e==='no'?`<b class="ng">${esc(clsName(CLS))} は対象外です</b>`:e==='intl'?'<b>留学生向けの科目です</b>':'';
   const ap=b.apply?(APPLY[b.apply]||['申請あり',''])[1]:'不要';
   const rows=[['対象クラス',b.fl.includes('ALL')?'全学年':b.cls],['教室',[b.campus,b.room].filter(Boolean).join('　')],['事前申請',ap],['備考',b.note]].filter(r=>r[1]);
   return `<section class="cond"><h3>受講条件</h3>${verdict?`<p class="verdict">${verdict}</p>`:''}<dl class="rows">${rows.map(([k,x])=>`<div><dt>${esc(k)}</dt><dd>${esc(x)}</dd></div>`).join('')}</dl><p class="srcnote">B表(${esc(b.term)}期 ${esc(BTV[b.term]||'')}版)より</p></section>`;
@@ -282,7 +297,7 @@ function syncCtl(){
   $('#btnote').textContent=nocat?'⚠ index.json に学部カテゴリがありません(絞り込みが空になります)。python3 scrape.py --enrich を実行してください。':(BT?'':'⚠ B表データ(btable.json)が読み込めません。data フォルダに置いて、Cmd+Shift+R で再読み込みしてください。');
   $('#btver').textContent=BT?'B表: '+Object.entries(BTV).map(([k,x])=>`${k} ${String(x).replace(/^\d{4}\//,'')}版`).join(' / '):'';
   if(BT){
-    $('#cls').innerHTML='<option value="">クラス未設定</option>'+CLASSDEF.map(([g,a])=>`<optgroup label="${g}">${a.map(([v,l])=>`<option value="${v}"${v===CLS?' selected':''}>${v}${l?' '+esc(l):''}</option>`).join('')}</optgroup>`).join('');
+    $('#cls').innerHTML='<option value="">クラス未設定</option>'+CLASSDEF.map(([g,a])=>`<optgroup label="${g}">${a.map(([v,l])=>`<option value="${v}"${v===CLS?' selected':''}>${/^D/.test(v)?clsName(v):v+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('');
     opts('#place','場所',['伊都(センター)','伊都(イースト)','病院','遠隔'],p.get('place'));
     $('#mine').setAttribute('aria-pressed',String(mineOn()));$('#nolot').setAttribute('aria-pressed',String(!!p.get('nolot')));
   }
@@ -485,6 +500,28 @@ async function renderDetail(code){
   }
 }
 const EXTSVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+/* 一覧で下へスクロールしたら検索・絞り込みを畳む。上へ戻すか、ボタンで開く */
+(()=>{
+  const ctl=$('#ctl'),bar=$('#ctlbar'),btn=$('#ctlt');let last=scrollY,lock=0,pin=false;
+  const setCc=(on,keep)=>{
+    if(ctl.classList.contains('cc')===on)return;
+    const h0=document.querySelector('header').offsetHeight;
+    ctl.classList.toggle('cc',on);btn.textContent=on?'検索・絞り込みを開く ▾':'';
+    lock=Date.now()+200;measureHead();
+    if(keep)scrollBy(0,document.querySelector('header').offsetHeight-h0);   // 画面上の位置を保つ
+    sync();
+  };
+  const sync=()=>{bar.hidden=ctl.hidden||!ctl.classList.contains('cc')};
+  addEventListener('scroll',()=>{
+    const y=scrollY;if(Date.now()<lock||ctl.hidden){last=y;return}
+    if(y<20){pin=false;if(y<last)setCc(false,false)}
+    else if(y>last+6&&y>160&&!pin)setCc(true,true);
+    else if(y<last-30){setCc(false,true)}
+    last=y;
+  },{passive:true});
+  btn.addEventListener('click',()=>{pin=true;setCc(false,false);ctl.scrollIntoView({block:'nearest'})});
+  new MutationObserver(()=>{if(ctl.hidden)ctl.classList.remove('cc');sync()}).observe(ctl,{attributes:true,attributeFilter:['hidden']});
+})();
 function measureHead(){document.documentElement.style.setProperty('--hh',document.querySelector('header').offsetHeight+'px')}
 function initTabs(){
   const links=[...document.querySelectorAll('.tabs a')];if(!links.length)return;
@@ -545,6 +582,7 @@ const grpOf=c=>{const p=c.b?placeOf(c):(c.campus||'');return p==='遠隔'?'遠�
 function okFor(c){
   if(!CLS)return true;
   const e=elig(c);
+  if(upM())return e==='yes';
   return e==='yes'||(e==='unk'&&gradeOK(c));
 }
 const planned=st=>Object.entries(PL.p).filter(([,s])=>!st||s===st).map(([k,s])=>({c:BYC[k],st:s})).filter(x=>x.c);
@@ -554,6 +592,19 @@ function setPlan(code,st){
 }
 const stLabel={plan:'履修予定',done:'修得済み'};
 const hm=s=>esc(s);
+// 自動で履修予定に入れられる必修: 1年生はA表(data/atable.json)、芸工2〜4年は対象コース・学年で「必修」の科目
+const REQC={};
+function reqFor(){
+  if(!CLS)return null;
+  if(ATABLE&&ATABLE[CLS])return ATABLE[CLS];
+  const um=upM();if(!um)return null;
+  if(REQC[CLS])return REQC[CLS];
+  const k=um[1],y=+um[2],g=new Map();
+  DATA.forEach(c=>{if(c.cx&&c.cx[k]==='h'&&(!c.yr.length||c.yr.includes(y))){const n=nameKey(c.n);(g.get(n)||g.set(n,[]).get(n)).push(c)}});
+  const codes=[],manual=[];
+  g.forEach((a,n)=>a.length===1?codes.push(a[0].c):manual.push(n+': 同じ科目が'+a.length+'件あるので、クラス・時間を選んで入れる'));
+  return REQC[CLS]={codes,manual};
+}
 
 /* ---------- 時間割 ---------- */
 function slotIndex(term,nolot){
@@ -627,8 +678,12 @@ function renderTT(){
     g+=`<div class="tl"><b>${i}</b><small>${TIMES[i]||''}</small></div>`+DAYS.map(d=>cellHTML(term,d,i,occ,idx,sel,confKeys)).join('');
   }
   g+='</div>';
-  let h=`<div class="row" id="ttctl">${['前期','後期'].map(t=>`<button class="chip" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="tcls" aria-label="自分のクラス"><option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${x}${l?' '+esc(l):''}</option>`).join('')}</optgroup>`).join('')}</select><button class="chip" data-nolot="1" aria-pressed="${nolot}">抽選なし</button></div>`;
-  h+=`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(CLS)+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
+  let h=`<div class="row" id="ttctl">${['前期','後期'].map(t=>`<button class="chip" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="tcls" aria-label="自分のクラス"><option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}</select><button class="chip" data-nolot="1" aria-pressed="${nolot}">抽選なし</button></div>`;
+  const at=reqFor();
+  let atb='';
+  if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
+  else if(CLS)atb='<p class="note" style="margin-top:8px">このクラスの必修データはまだありません(S1-31 と芸術工学部 2〜4年に対応)。</p>';
+  h+=atb+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
   if(sel){
     const [d,pp]=sel.split('-'),cands=(idx.get(sel)||[]).slice().sort((a,b)=>a.n.localeCompare(b.n,'ja')),os=occ.get(sel)||[];
     h+=`<section class="panel"><h3>${esc(d)}曜 ${esc(pp)}限 <small>${TIMES[pp]||''}〜　${term}</small></h3>`;
@@ -650,8 +705,6 @@ function renderTT(){
   const off=pl.filter(x=>!cslots(x.c).length);
   if(off.length)h+=`<p class="note">曜日・時限が決まっていない授業(集中講義など): ${off.map(x=>esc(x.c.n)).join('、')}</p>`;
   if(dn.length)h+=`<details><summary>修得済み ${dn.length}件</summary>${dn.map(x=>planRow(x.c,'done')).join('')}</details>`;
-  const at=ATABLE&&CLS&&ATABLE[CLS];
-  if(at){const todo=at.codes.filter(c=>!PL.p[c]);h+=`<div class="row" style="margin-top:12px">${todo.length?`<button class="chip" id="patb" type="button">A表の必修 ${todo.length}科目を履修予定に入れる</button>`:'<span class="note">A表の必修は履修予定に入れ済みです</span>'}</div>${at.manual&&at.manual.length?`<details class="note"><summary>A表の必修のうち、自動では入れられないもの</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
   h+=`<div class="row" style="margin-top:12px"><button class="chip" id="pimg" type="button">${term}の時間割を画像で保存</button>${pl.length||dn.length?'<button class="chip" id="pclr" type="button">プランを全部消す</button>':''}</div></section>`;
   $('#ctl').hidden=true;
   v.innerHTML=h;
@@ -662,7 +715,7 @@ function ttImage(term){
   const W=lw+cw*5+pad*2,H=hh+rh*per+pad*2+72,cv=document.createElement('canvas');cv.width=W;cv.height=H;
   const x=cv.getContext('2d'),F='"Hiragino Sans","Noto Sans JP",sans-serif';
   x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#17212b';x.font=`700 26px ${F}`;x.textBaseline='top';
-  x.fillText(`時間割 ${term}${CLS?'  '+CLS:''}`,pad,pad-6);
+  x.fillText(`時間割 ${term}${CLS?'  '+clsName(CLS):''}`,pad,pad-6);
   const ox=pad+lw,oy=pad+40;
   x.font=`700 22px ${F}`;x.textAlign='center';
   DAYS.forEach((d,i)=>{x.fillStyle='#e2ebf7';x.fillRect(ox+i*cw,oy,cw-2,hh-2);x.fillStyle='#123f80';x.fillText(d,ox+i*cw+cw/2,oy+13)});
@@ -768,7 +821,7 @@ async function renderCmp(){
   if(!cs.length)cs=pool().filter(c=>nameKey(c.n).startsWith(n));
   const total=cs.length;
   if(mine)cs=cs.filter(c=>!c.b||elig(c)!=='no');
-  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(CLS)} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(CLS)}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
+  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(clsName(CLS))} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(CLS)}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
   const box=$('#cmplist'),draw=()=>{
     const arr=cs.map(c=>({c,g:GC[c.c]})).sort((a,b)=>{
       const f=METRIC[sortKey][1],x=a.g&&!a.g.err?f(a.g.rows):99,y=b.g&&!b.g.err?f(b.g.rows):99;
@@ -875,7 +928,7 @@ $('#view').addEventListener('click',e=>{
   if(b=by('[data-back]')){const y=scrollY;setPlan(b.dataset.back,'plan');bumpTT();scrollTo(0,y);return}
   if(b=by('[data-set]')){setPlan(b.dataset.code,b.dataset.set);const c=BYC[b.dataset.code];const box=$('#relbox');if(c&&box)box.outerHTML=planBoxHTML(c);return}
   if(b=by('#pimg')){try{ttImage(params().get('t')||defTerm())}catch(err){console.error(err);alert('画像を作れませんでした')}return}
-  if(b=by('#patb')){const at=ATABLE&&ATABLE[CLS];if(at){at.codes.forEach(c=>{if(!PL.p[c])PL.p[c]='plan'});plSave();renderTT()}return}
+  if(b=by('#patb')){const at=reqFor();if(at){at.codes.forEach(c=>{if(!PL.p[c])PL.p[c]='plan'});plSave();renderTT()}return}
   if(b=by('#pclr')){if(confirm('履修プランを全部消しますか?(卒業要件の手入力は残ります)')){PL.p={};plSave();renderTT()}return}
   if(b=by('[data-co]')){const p=params();p.set('o',b.dataset.co);history.replaceState(null,'','#/w?'+p);renderCmp();return}
   if(b=by('[data-cmine]')){const p=params();p.get('mine')==='0'?p.delete('mine'):p.set('mine','0');history.replaceState(null,'','#/w?'+p);renderCmp();return}
