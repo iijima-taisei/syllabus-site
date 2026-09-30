@@ -161,6 +161,7 @@ h1{font-weight:700}
 .tl b{font-size:.95rem;color:var(--ink)}.tl small{font-size:.58rem}
 .cell{min-height:92px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
 .cell.has{background:var(--acbg);border-color:var(--ac)}
+.cell.multi .cc{font-size:.72rem;-webkit-line-clamp:2}
 .cell.has.rq{background:var(--okbg);border-color:var(--ok)}
 .cell.bad{background:var(--wnbg);border-color:var(--ng)}
 .cell.sel{outline:2px solid var(--ac);outline-offset:1px}
@@ -211,7 +212,7 @@ a.rel.cmp{padding:10px 12px;border:1px solid var(--line);border-radius:10px;text
 <div class="row" id="myrow2" hidden><button class="chip" id="mine" type="button" aria-pressed="false">受講可のみ</button><button class="chip" id="nolot" type="button" aria-pressed="false">抽選なし</button></div>
 <div class="row" id="days"></div>
 </div></div></header>
-<main><div class="wrap" id="view"></div></main>
+<main><div class="wrap" id="view"><p class="note" style="padding:24px 0;text-align:center">読み込み中…</p></div></main>
 <footer class="sitefoot">非公式の閲覧サイトです。九州大学とは関係ありません。出典: Campusmate(九大シラバス)・履修資料(B表・学生便覧)。内容は正確とは限らないため、履修の判断は必ず公式の情報で確認してください。最終更新: 2026年10月1日</footer>
 <script>
 const $=s=>document.querySelector(s);
@@ -341,9 +342,10 @@ function renderList(){
   if(!active&&hist.length){
     h+=`<details class="hist"${histOpen?' open':''}><summary>最近見た講義 <small>${hist.length}件</small></summary><div class="sechead"><span></span><button class="lnk" id="hclear" type="button">履歴を消す</button></div>${hist.slice(0,histAll?30:5).map(itemHTML).join('')}${hist.length>5&&!histAll?'<button class="lnk" id="hmore" type="button">もっと見る</button>':''}</details>`;
   }
-  h+=`<section><h2 class="lh">講義一覧</h2><p class="count">${r.length}件　${p.get('all')?'全学部':'基幹教育・芸術工学部'}<button class="lnk" id="scope" type="button">${p.get('all')?'基幹教育・芸術工学部のみ':'すべての学部を表示'}</button></p>${mineOn()?`<p class="count">${esc(CLS)} で受講できる授業(B表 前期${esc(BTV['前期']||'-')}・後期${esc(BTV['後期']||'-')}版で判定)</p>`:''}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
+  h+=`<section><h2 class="lh">講義一覧</h2><p class="count">${r.length}件　${p.get('all')?'全学部':'基幹教育・芸術工学部'}${active||p.get('place')||p.get('nolot')?'<button class="lnk" id="fclear" type="button">条件をクリア</button>':''}<button class="lnk" id="scope" type="button">${p.get('all')?'基幹教育・芸術工学部のみ':'すべての学部を表示'}</button></p>${mineOn()?`<p class="count">${esc(clsName(CLS))} で受講できる授業(B表 前期${esc(BTV['前期']||'-')}・後期${esc(BTV['後期']||'-')}版で判定)</p>`:''}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
   v.innerHTML=h;
   const m=$('#more');m&&(m.onclick=()=>{shown+=100;renderList()});
+  const fc=$('#fclear');fc&&(fc.onclick=()=>{const q=params();['q','sem','cat','sub','d','per','place','nolot'].forEach(k=>q.delete(k));history.replaceState(null,'','#/'+(q.toString()?'?'+q:''));shown=100;syncCtl();renderList()});
   $('#scope').onclick=()=>setP('all',params().get('all')?'':'1');
   const hd=$('details.hist');hd&&hd.addEventListener('toggle',()=>{histOpen=hd.open});
   const hc=$('#hclear');hc&&(hc.onclick=()=>{histClear();renderList()});
@@ -674,7 +676,7 @@ function cellHTML(term,d,p,occ,idx,sel,confKeys){
   const k=d+'-'+p,os=occ.get(k)||[],n=(idx.get(k)||[]).length;
   const bad=confKeys.has(k);
   const inner=os.length?os.map(({c,s})=>`<span class="cc">${s.q.length===1?`<i>${s.q[0]}</i>`:''}${esc(c.n)}</span>`).join(''):`<span class="fr">${n?n+'<small>件</small>':''}</span>`;
-  return `<button type="button" class="cell${os.length?' has':''}${os.length&&os.every(o=>REQSET.has(o.c.c))?' rq':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
+  return `<button type="button" class="cell${os.length?' has':''}${os.length>1?' multi':''}${os.length&&os.every(o=>REQSET.has(o.c.c))?' rq':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
 }
 function candRow(c,term){
   const cf=(()=>{const tq=TERMQ[term];const occ=occupancy(term);return cslots(c).some(s=>qHit(s.q,tq)&&(occ.get(s.d+'-'+s.p)||[]).some(o=>qHit(o.s.q,s.q)))})();
@@ -825,10 +827,10 @@ async function renderCmp(){
   const v=$('#view'),p=params(),n=p.get('n')||'';
   $('#ctl').hidden=true;
   if(!n){
-    const m=new Map();
-    for(const c of pool()){const k=nameKey(c.n);if(!m.has(k))m.set(k,[]);m.get(k).push(c)}
+    const m=new Map(),mine0=CLS&&p.get('mine')!=='0';
+    for(const c of pool()){if(mine0&&!okFor(c))continue;const k=nameKey(c.n);if(!m.has(k))m.set(k,[]);m.get(k).push(c)}
     const a=[...m].filter(([,x])=>x.length>=3).sort((x,y)=>y[1].length-x[1].length);
-    v.innerHTML=`<h2 class="lh">科目比較</h2><p class="count">同じ科目名で複数のクラス・教員に分かれている授業を、成績配分で比べられます。</p><input id="cmpq" type="search" placeholder="科目名で絞り込み" style="width:100%;margin-bottom:8px">`+a.map(([k,x])=>`<a class="item" data-nm="${esc(k.toLowerCase())}" href="#/w?n=${encodeURIComponent(k)}"><b>${esc(k)}</b><span class="meta">${x.length}クラス　${[...new Set(x.map(c=>c.t))].length}人の教員</span></a>`).join('')||'<p class="note">該当なし</p>';
+    v.innerHTML=`<h2 class="lh">科目比較</h2><p class="count">同じ科目名で複数のクラス・教員に分かれている授業を、成績配分で比べられます。</p>${CLS?`<div class="row"><button class="chip" data-cmine="1" aria-pressed="${mine0}">${esc(clsName(CLS))}で受講可のみ</button></div>`:''}<input id="cmpq" type="search" placeholder="科目名で絞り込み" style="width:100%;margin-bottom:8px">`+a.map(([k,x])=>`<a class="item" data-nm="${esc(k.toLowerCase())}" href="#/w?n=${encodeURIComponent(k)}"><b>${esc(k)}</b><span class="meta">${x.length}クラス　${[...new Set(x.map(c=>c.t))].length}人の教員</span></a>`).join('')||'<p class="note">該当なし</p>';
     $('#cmpq').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();document.querySelectorAll('#view .item[data-nm]').forEach(el=>{el.hidden=!!q&&!el.dataset.nm.includes(q)})});
     return;
   }
