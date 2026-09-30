@@ -527,7 +527,7 @@ $('#view').addEventListener('click',e=>{
 const PKEY='kyudai-syllabus-plan';
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem(PKEY)||'{}');return{p:o.p||{},adj:o.adj||{},md:o.md||{}}}catch(e){return{p:{},adj:{},md:{}}}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null;const SER=new Map();
+let BYC={},MDREQ=null,ATABLE=null;const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -650,6 +650,8 @@ function renderTT(){
   const off=pl.filter(x=>!cslots(x.c).length);
   if(off.length)h+=`<p class="note">曜日・時限が決まっていない授業(集中講義など): ${off.map(x=>esc(x.c.n)).join('、')}</p>`;
   if(dn.length)h+=`<details><summary>修得済み ${dn.length}件</summary>${dn.map(x=>planRow(x.c,'done')).join('')}</details>`;
+  const at=ATABLE&&CLS&&ATABLE[CLS];
+  if(at){const todo=at.codes.filter(c=>!PL.p[c]);h+=`<div class="row" style="margin-top:12px">${todo.length?`<button class="chip" id="patb" type="button">A表の必修 ${todo.length}科目を履修予定に入れる</button>`:'<span class="note">A表の必修は履修予定に入れ済みです</span>'}</div>${at.manual&&at.manual.length?`<details class="note"><summary>A表の必修のうち、自動では入れられないもの</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
   h+=`<div class="row" style="margin-top:12px"><button class="chip" id="pimg" type="button">${term}の時間割を画像で保存</button>${pl.length||dn.length?'<button class="chip" id="pclr" type="button">プランを全部消す</button>':''}</div></section>`;
   $('#ctl').hidden=true;
   v.innerHTML=h;
@@ -873,6 +875,7 @@ $('#view').addEventListener('click',e=>{
   if(b=by('[data-back]')){const y=scrollY;setPlan(b.dataset.back,'plan');bumpTT();scrollTo(0,y);return}
   if(b=by('[data-set]')){setPlan(b.dataset.code,b.dataset.set);const c=BYC[b.dataset.code];const box=$('#relbox');if(c&&box)box.outerHTML=planBoxHTML(c);return}
   if(b=by('#pimg')){try{ttImage(params().get('t')||defTerm())}catch(err){console.error(err);alert('画像を作れませんでした')}return}
+  if(b=by('#patb')){const at=ATABLE&&ATABLE[CLS];if(at){at.codes.forEach(c=>{if(!PL.p[c])PL.p[c]='plan'});plSave();renderTT()}return}
   if(b=by('#pclr')){if(confirm('履修プランを全部消しますか?(卒業要件の手入力は残ります)')){PL.p={};plSave();renderTT()}return}
   if(b=by('[data-co]')){const p=params();p.set('o',b.dataset.co);history.replaceState(null,'','#/w?'+p);renderCmp();return}
   if(b=by('[data-cmine]')){const p=params();p.get('mine')==='0'?p.delete('mine'):p.set('mine','0');history.replaceState(null,'','#/w?'+p);renderCmp();return}
@@ -887,7 +890,7 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md])=>{DATA=j;MDREQ=md;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;MDREQ=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
 </script>
 </body>
 </html>
