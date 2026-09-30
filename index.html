@@ -20,7 +20,7 @@ input,select{font:inherit;color:inherit;background:var(--bg);border:1px solid va
 .row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
 .row select{flex:1 1 30%}
 #tcls{flex:1 1 100%;order:5}
-.chip{border:1px solid var(--line);background:var(--bg);color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-size:.9rem;cursor:pointer}
+.chip{min-height:38px;border:1px solid var(--line);background:var(--bg);color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-size:.9rem;cursor:pointer}
 .chip[aria-pressed=true]{background:var(--ac);color:var(--card);border-color:var(--ac)}
 main{padding:12px 12px calc(40px + env(safe-area-inset-bottom))}
 .count{color:var(--sub);font-size:.85rem;margin:0 0 8px}
@@ -168,8 +168,9 @@ h1{font-weight:700}
 .cc i{font-style:normal;background:var(--ac);color:var(--card);border-radius:3px;padding:0 3px;margin-right:2px;font-size:.68rem}
 .cell.rq .cc i{background:var(--ok)}
 .tlg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--sub);margin:-2px 0 6px}.tlg i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid;vertical-align:-1px;margin-right:4px}
-.fr{margin:auto;color:var(--mute);font-size:.8rem}
+.fr{margin:auto;color:var(--mute);font-size:.85rem}.fr small{font-size:.62rem;margin-left:1px}
 .panel{border-top:1px solid var(--line);margin-top:14px;padding-top:4px;scroll-margin-top:calc(var(--hh,0px) + 8px)}
+.hint{margin:10px 0;padding:10px 12px;border-radius:8px;background:var(--acbg);font-size:.92rem}
 .panel h3 .lnk{float:right;font-size:.85rem}
 .panel h3{font-size:1.1rem;font-weight:700;margin:10px 0 4px}.panel h3 small{font-weight:400;color:var(--sub);font-size:.8rem}
 .panel h4{font-size:.85rem;color:var(--sub);margin:12px 0 2px}
@@ -188,7 +189,7 @@ a.rel.cmp{padding:10px 12px;border:1px solid var(--line);border-radius:10px;text
 .grow{padding:11px 0;border-bottom:1px solid var(--line)}.gh{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.gn2{font-weight:700;color:var(--ac);white-space:nowrap}
 .gbar{height:10px;border-radius:5px;background:var(--acbg);overflow:hidden;margin:6px 0 2px}.gbar i{display:block;height:100%;float:left}.gbar .d{background:var(--ac)}.gbar .p{background:var(--ac);opacity:.35}
 .total .big{font-size:2.2rem;font-weight:700;line-height:1.2}.total .big small{font-size:.9rem;font-weight:400;color:var(--sub)}
-.stp{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:.85rem}.stp button{border:1px solid var(--line);background:var(--bg);color:var(--ac);border-radius:8px;width:34px;height:30px;font:inherit;cursor:pointer}
+.stp{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:.85rem}.stp button{border:1px solid var(--line);background:var(--bg);color:var(--ac);border-radius:8px;width:44px;height:40px;font:inherit;cursor:pointer}
 .sgl{margin-top:8px;font-size:.9rem}.mk{display:inline-block;min-width:1.4em;text-align:center;margin-right:4px;color:var(--wn)}
 .chip.st.on{background:var(--ac);color:var(--card);border-color:var(--ac)}
 .mdc{padding:6px 0}
@@ -672,7 +673,7 @@ function buildReq(){
 function cellHTML(term,d,p,occ,idx,sel,confKeys){
   const k=d+'-'+p,os=occ.get(k)||[],n=(idx.get(k)||[]).length;
   const bad=confKeys.has(k);
-  const inner=os.length?os.map(({c,s})=>`<span class="cc">${s.q.length===1?`<i>${s.q[0]}</i>`:''}${esc(c.n)}</span>`).join(''):`<span class="fr">${n?n:''}</span>`;
+  const inner=os.length?os.map(({c,s})=>`<span class="cc">${s.q.length===1?`<i>${s.q[0]}</i>`:''}${esc(c.n)}</span>`).join(''):`<span class="fr">${n?n+'<small>件</small>':''}</span>`;
   return `<button type="button" class="cell${os.length?' has':''}${os.length&&os.every(o=>REQSET.has(o.c.c))?' rq':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
 }
 function candRow(c,term){
@@ -696,6 +697,7 @@ function renderTT(){
   const at=reqFor();
   let atb='';
   if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
+  else if(!CLS)atb='<p class="hint">まず上のメニューで<b>自分のクラス</b>を選んでください。受講できる授業だけが数えられ、必修の授業もまとめて入れられます。</p>';
   else if(CLS)atb='<p class="note" style="margin-top:8px">このクラスの必修データはまだありません(S1-31 と芸術工学部 2〜4年に対応)。</p>';
   h+=atb+(REQSET.size?'<p class="tlg"><span><i style="background:var(--okbg);border-color:var(--ok)"></i>必修</span><span><i style="background:var(--acbg);border-color:var(--ac)"></i>選択・その他</span><span><i style="background:var(--wnbg);border-color:var(--ng)"></i>重複</span></p>':'')+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
   if(sel){
@@ -719,7 +721,7 @@ function renderTT(){
   const off=pl.filter(x=>!cslots(x.c).length);
   if(off.length)h+=`<p class="note">曜日・時限が決まっていない授業(集中講義など): ${off.map(x=>esc(x.c.n)).join('、')}</p>`;
   if(dn.length)h+=`<details><summary>修得済み ${dn.length}件</summary>${dn.map(x=>planRow(x.c,'done')).join('')}</details>`;
-  h+=`<div class="row" style="margin-top:12px"><button class="chip" id="pimg" type="button">${term}の時間割を画像で保存</button>${pl.length||dn.length?'<button class="chip" id="pclr" type="button">プランを全部消す</button>':''}</div></section>`;
+  h+=`<div class="row" style="margin-top:12px"><button class="chip" id="pimg" type="button">${term}の時間割を画像で保存</button>${pl.length||dn.length?'<button class="chip" id="pclr" type="button">プランを全部消す</button>':''}</div><div class="row" style="margin-top:8px"><button class="chip" id="pexp" type="button">プランを書き出す</button><button class="chip" id="pimp" type="button">プランを読み込む</button><input type="file" id="pfile" accept="application/json,.json" hidden></div><p class="srcnote">履修プランはこの端末のブラウザにだけ保存されます。機種変更や別の端末で使うときは、書き出したファイルを読み込んでください。</p></section>`;
   $('#ctl').hidden=true;
   v.innerHTML=h;
 }
@@ -872,7 +874,9 @@ function stepper(id,val,label){
 function renderGrad(){
   const v=$('#view');$('#ctl').hidden=true;
   if(!MDREQ){v.innerHTML='<h2 class="lh">卒業要件</h2><p class="note">data/mdreq.json が読み込めません。data フォルダに置いてください。</p>';return}
-  const R=MDREQ;let out=`<h2 class="lh">卒業要件 <small>${esc(R.course)}</small></h2><p class="srcnote">${esc(R.source)}</p>`;
+  const ck=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
+  const warn=ck&&ck!=='31'&&ck!=='33'?`<p class="wl warn">いま選んでいるクラスは${esc(clsName(CLS))}ですが、この画面の卒業要件は<b>メディアデザインコース用</b>の内容です。他のコースの要件データはまだありません。</p>`:'';
+  const R=MDREQ;let out=warn+`<h2 class="lh">卒業要件 <small>${esc(R.course)}</small></h2><p class="srcnote">${esc(R.source)}</p>`;
   let doneAll=0,planAll=0;
   // --- 基幹教育
   const K=R.kiban;let kd=0,kp=0,excess=0;const kr=[];
@@ -944,6 +948,8 @@ $('#view').addEventListener('click',e=>{
   if(b=by('[data-set]')){if(b.dataset.set==='plan'&&CLS&&BYC[b.dataset.code]&&elig(BYC[b.dataset.code])==='no'&&!confirm(clsName(CLS)+' では対象外の授業です。それでも履修予定に入れますか?'))return;setPlan(b.dataset.code,b.dataset.set);const c=BYC[b.dataset.code];const box=$('#relbox');if(c&&box)box.outerHTML=planBoxHTML(c);return}
   if(b=by('#pimg')){try{ttImage(params().get('t')||defTerm())}catch(err){console.error(err);alert('画像を作れませんでした')}return}
   if(b=by('#patb')){const at=reqFor();if(at){at.codes.forEach(c=>{if(!PL.p[c])PL.p[c]='plan'});plSave();renderTT()}return}
+  if(b=by('#pexp')){const blob=new Blob([JSON.stringify({v:1,cls:CLS,plan:PL},null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='syllabus-plan.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return}
+  if(b=by('#pimp')){$('#pfile').click();return}
   if(b=by('#pclr')){if(confirm('履修プランを全部消しますか?(卒業要件の手入力は残ります)')){PL.p={};plSave();renderTT()}return}
   if(b=by('[data-co]')){const p=params();p.set('o',b.dataset.co);history.replaceState(null,'','#/w?'+p);renderCmp();return}
   if(b=by('[data-cmine]')){const p=params();p.get('mine')==='0'?p.delete('mine'):p.set('mine','0');history.replaceState(null,'','#/w?'+p);renderCmp();return}
@@ -951,6 +957,19 @@ $('#view').addEventListener('click',e=>{
   if(b=by('[data-adj]')){const id=b.dataset.adj;PL.adj[id]=Math.max(0,(PL.adj[id]||0)+ +b.dataset.dv);plSave();const y=scrollY,open=[...document.querySelectorAll('#view details')].map(d=>d.open);renderGrad();document.querySelectorAll('#view details').forEach((d,i)=>d.open=!!open[i]);scrollTo(0,y);return}
 });
 $('#view').addEventListener('change',e=>{
+  if(e.target.id==='pfile'){
+    const f=e.target.files[0];if(!f)return;
+    f.text().then(t=>{
+      const o=JSON.parse(t),pl=o&&o.plan;
+      if(!pl||typeof pl.p!=='object'||Array.isArray(pl.p))throw new Error('形式が違います');
+      const n=Object.keys(pl.p).length;
+      if(!confirm('読み込むと、いまの履修プランを置き換えます(読み込む内容: '+n+'科目)。よろしいですか?'))return;
+      PL={p:pl.p||{},adj:pl.adj||{},md:pl.md||{}};plSave();
+      if(typeof o.cls==='string'&&o.cls){CLS=o.cls;try{localStorage.setItem(CKEY,CLS)}catch(_){}}
+      renderTT();
+    }).catch(()=>alert('読み込めませんでした。書き出したファイル(JSON)を選んでください。'));
+    e.target.value='';return;
+  }
   if(e.target.id==='tcls'){CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}renderTT()}
 });
 function initFeatures(){
