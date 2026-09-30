@@ -154,16 +154,19 @@ h1{font-weight:700}
 .nav{display:flex;gap:2px;margin:0 0 4px;overflow-x:auto;scrollbar-width:none}
 .nav a{flex:none;text-decoration:none;color:var(--sub);padding:6px 12px;border-bottom:3px solid transparent;font-size:.92rem}
 .nav a.on{color:var(--ac);border-bottom-color:var(--ac);font-weight:700}
-.tt{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));gap:3px;margin:8px 0}
+.tt{display:grid;grid-template-columns:30px repeat(5,minmax(0,1fr));gap:3px;margin:8px 0}
 .th{text-align:center;font-weight:700;color:var(--ac);padding:4px 0}
 .tl{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub);line-height:1.2}
 .tl b{font-size:.95rem;color:var(--ink)}.tl small{font-size:.58rem}
-.cell{min-height:66px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
+.cell{min-height:92px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden}
 .cell.has{background:var(--acbg);border-color:var(--ac)}
+.cell.has.rq{background:var(--okbg);border-color:var(--ok)}
 .cell.bad{background:var(--wnbg);border-color:var(--ng)}
 .cell.sel{outline:2px solid var(--ac);outline-offset:1px}
-.cc{font-size:.68rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
-.cc i{font-style:normal;background:var(--ac);color:var(--card);border-radius:3px;padding:0 3px;margin-right:2px;font-size:.6rem}
+.cc{font-size:.82rem;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.cc i{font-style:normal;background:var(--ac);color:var(--card);border-radius:3px;padding:0 3px;margin-right:2px;font-size:.68rem}
+.cell.rq .cc i{background:var(--ok)}
+.tlg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--sub);margin:-2px 0 6px}.tlg i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid;vertical-align:-1px;margin-right:4px}
 .fr{margin:auto;color:var(--mute);font-size:.8rem}
 .panel{border-top:1px solid var(--line);margin-top:14px;padding-top:4px}
 .panel h3{font-size:1.1rem;font-weight:700;margin:10px 0 4px}.panel h3 small{font-weight:400;color:var(--sub);font-size:.8rem}
@@ -656,11 +659,17 @@ function warnings(term){
   }
   return w;
 }
+let REQSET=new Set();
+function buildReq(){
+  REQSET=new Set();const r=reqFor();if(r)r.codes.forEach(c=>REQSET.add(c));
+  const k=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
+  if(k)DATA.forEach(c=>{if(c.cx&&c.cx[k]==='h'&&elig(c)==='yes')REQSET.add(c.c)});
+}
 function cellHTML(term,d,p,occ,idx,sel,confKeys){
   const k=d+'-'+p,os=occ.get(k)||[],n=(idx.get(k)||[]).length;
   const bad=confKeys.has(k);
   const inner=os.length?os.map(({c,s})=>`<span class="cc">${s.q.length===1?`<i>${s.q[0]}</i>`:''}${esc(c.n)}</span>`).join(''):`<span class="fr">${n?n:''}</span>`;
-  return `<button type="button" class="cell${os.length?' has':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
+  return `<button type="button" class="cell${os.length?' has':''}${os.length&&os.every(o=>REQSET.has(o.c.c))?' rq':''}${bad?' bad':''}${sel===k?' sel':''}" data-cell="${k}" aria-label="${d}曜${p}限">${inner}</button>`;
 }
 function candRow(c,term){
   const cf=(()=>{const tq=TERMQ[term];const occ=occupancy(term);return cslots(c).some(s=>qHit(s.q,tq)&&(occ.get(s.d+'-'+s.p)||[]).some(o=>qHit(o.s.q,s.q)))})();
@@ -671,6 +680,7 @@ function planRow(c,st){
 }
 function renderTT(){
   const v=$('#view'),p=params(),term=p.get('t')||defTerm(),sel=p.get('s')||'',nolot=!!p.get('nolot');
+  buildReq();
   const occ=occupancy(term),idx=slotIndex(term,nolot),confKeys=new Set(conflictsOf(term).map(x=>x.k));
   const six=[...occ.keys(),...idx.keys()].some(k=>k.endsWith('-6')),per=six?6:5;
   let g=`<div class="tt"><div class="th"></div>${DAYS.map(d=>`<div class="th">${d}</div>`).join('')}`;
@@ -683,7 +693,7 @@ function renderTT(){
   let atb='';
   if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}`}
   else if(CLS)atb='<p class="note" style="margin-top:8px">このクラスの必修データはまだありません(S1-31 と芸術工学部 2〜4年に対応)。</p>';
-  h+=atb+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
+  h+=atb+(REQSET.size?'<p class="tlg"><span><i style="background:var(--okbg);border-color:var(--ok)"></i>必修</span><span><i style="background:var(--acbg);border-color:var(--ac)"></i>選択・その他</span><span><i style="background:var(--wnbg);border-color:var(--ng)"></i>重複</span></p>':'')+`<p class="count" style="margin-top:8px">空きコマの数字は、${CLS?esc(clsName(CLS))+' で受講できる':'(クラス未設定のため全部の)'}授業の件数です。コマをタップすると一覧が出ます。</p>`+g;
   if(sel){
     const [d,pp]=sel.split('-'),cands=(idx.get(sel)||[]).slice().sort((a,b)=>a.n.localeCompare(b.n,'ja')),os=occ.get(sel)||[];
     h+=`<section class="panel"><h3>${esc(d)}曜 ${esc(pp)}限 <small>${TIMES[pp]||''}〜　${term}</small></h3>`;
@@ -724,7 +734,7 @@ function ttImage(term){
     x.font=`400 14px ${F}`;x.fillText(TIMES[r]||'',pad+lw/2,oy+hh+(r-1)*rh+58);
     DAYS.forEach((d,i)=>{
       const k=d+'-'+r,os=occ.get(k)||[],X=ox+i*cw,Y=oy+hh+(r-1)*rh;
-      x.fillStyle=os.length?(conf.has(k)?'#fbdedb':'#e2ebf7'):'#f5f7fa';x.fillRect(X,Y,cw-2,rh-2);
+      x.fillStyle=os.length?(conf.has(k)?'#fbdedb':os.every(o=>REQSET.has(o.c.c))?'#d9f0e3':'#e2ebf7'):'#f5f7fa';x.fillRect(X,Y,cw-2,rh-2);
       x.textAlign='left';x.fillStyle='#17212b';x.font=`600 17px ${F}`;
       let ly=Y+8;
       for(const {c} of os.slice(0,2)){
