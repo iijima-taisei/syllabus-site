@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
+<meta name="description" content="九州大学のシラバスをスマホで読みやすくした非公式の閲覧サイト。時間割・A表・卒業要件・科目比較。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Crect x='6' y='6' width='9' height='9' rx='1.5' fill='%23d4361e'/%3E%3Crect x='17' y='6' width='9' height='9' rx='1.5' fill='%2316140f'/%3E%3Crect x='6' y='17' width='9' height='9' rx='1.5' fill='%2316140f'/%3E%3Crect x='18' y='18' width='7' height='7' rx='1' fill='none' stroke='%2316140f' stroke-width='2'/%3E%3C/svg%3E">
 <title>九大シラバス</title>
 <meta name="theme-color" content="#f3efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f0e0b" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,7 +86,7 @@ h1 a:hover .brand-mark i:nth-child(4){transform:translate(-2px,-2px)}
 main{padding:24px 20px calc(var(--tb) + 56px + env(safe-area-inset-bottom))}
 @media(min-width:900px){
   .wrap{max-width:860px}
-  h1{min-height:44px}.brand-en{display:inline}.ver{margin-left:auto;margin-right:352px}
+  h1{min-height:44px}.brand-en{display:inline}.ver{margin-left:auto;margin-right:456px}
   .nav{position:fixed;top:calc(10px + env(safe-area-inset-top));bottom:auto;left:auto;right:max(20px,calc((100vw - 860px)/2 + 20px));display:flex;gap:2px;max-width:none;margin:0;padding:3px;border-radius:999px;box-shadow:none;background:var(--paper-2);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:25}
   .nav a{flex-direction:row;gap:8px;padding:8px 16px;font-size:.86rem;color:var(--ink-2);border-radius:999px}
   .nav a svg{width:17px;height:17px}.nav a.on{color:var(--paper);background:var(--ink)}.nav a.on svg{stroke:var(--accent)}
@@ -318,6 +320,16 @@ details.manual ul{margin:0;padding-left:1.2em;font-size:.86rem;line-height:1.8;c
 .sitefoot{max-width:820px;margin:0 auto;padding:36px 20px calc(var(--tb) + 56px + env(safe-area-inset-bottom));border-top:1px solid var(--rule);color:var(--ink-3);font-size:.74rem;line-height:1.8}
 @media(min-width:900px){.sitefoot{padding-bottom:64px}}
 
+/* ---------- 細部 ---------- */
+@media(prefers-color-scheme:dark){.nav{background:color-mix(in srgb,#2a2720 94%,transparent);box-shadow:0 14px 40px -10px rgba(0,0,0,.7),0 0 0 1px rgba(239,233,220,.1) inset}.nav a{color:rgba(239,233,220,.55)}.nav a.on{color:#efe9dc;background:rgba(239,233,220,.12)}}
+@media(prefers-color-scheme:dark) and (min-width:900px){.nav{background:var(--paper-2);box-shadow:none}.nav a.on{background:var(--ink);color:var(--paper)}}
+html{scroll-behavior:smooth}
+.item .cd{position:absolute;right:0;top:20px;font-family:var(--f-mono);font-style:normal;font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);opacity:.8}
+.item b{padding-right:74px}
+.empty{padding:56px 0;text-align:center}.empty .eg{font-family:var(--f-disp);font-size:4.4rem;line-height:1;color:var(--rule-2);margin-bottom:10px}.empty p{margin:4px 0}
+@media(min-width:1280px){
+  body::after{content:"KYUSHU UNIVERSITY  ·  SYLLABUS 2026  ·  UNOFFICIAL";position:fixed;left:28px;top:50%;writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.34em;color:var(--ink-3);pointer-events:none;white-space:nowrap}
+}
 /* ---------- 動き ---------- */
 #splash{position:fixed;inset:0;z-index:100;background:var(--paper);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;pointer-events:none}
 #splash.go{display:flex;animation:sp-out .8s var(--ease-io) 1.35s forwards}
@@ -490,7 +502,7 @@ function histGet(){try{const a=JSON.parse(localStorage.getItem(HKEY)||'[]');retu
 function histAdd(code){try{localStorage.setItem(HKEY,JSON.stringify([code,...histGet().filter(x=>x!==code)].slice(0,30)))}catch(e){}}
 function histClear(){try{localStorage.removeItem(HKEY)}catch(e){}}
 let histAll=false;
-const itemHTML=c=>`<a class="item" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><div>${c.credit?`<span class="tag s">${esc(c.credit)}単位</span> `:''}${c.cat?`<span class="tag">${esc(c.cat)}</span> `:''}${c.lang?`<span class="tag">${esc(c.lang)}</span>`:''}${badgeHTML(c)}${PL.p[c.c]?` <span class="tag s">${PL.p[c.c]==='done'?'修得済み':'履修予定'}</span>`:''}</div></a>`;
+const itemHTML=c=>`<a class="item" href="#/c/${esc(c.c)}"><i class="cd">${esc(c.c)}</i><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><div>${c.credit?`<span class="tag s">${esc(c.credit)}単位</span> `:''}${c.cat?`<span class="tag">${esc(c.cat)}</span> `:''}${c.lang?`<span class="tag">${esc(c.lang)}</span>`:''}${badgeHTML(c)}${PL.p[c.c]?` <span class="tag s">${PL.p[c.c]==='done'?'修得済み':'履修予定'}</span>`:''}</div></a>`;
 function renderList(){
   const r=filtered(),v=$('#view'),p=params();
   $('#ctl').hidden=false;
@@ -501,7 +513,7 @@ function renderList(){
   if(!active&&hist.length){
     h+=`<details class="hist"${histOpen?' open':''}><summary>最近見た講義 <small>${hist.length}件</small></summary><div class="sechead"><span></span><button class="lnk" id="hclear" type="button">履歴を消す</button></div>${hist.slice(0,histAll?30:5).map(itemHTML).join('')}${hist.length>5&&!histAll?'<button class="lnk" id="hmore" type="button">もっと見る</button>':''}</details>`;
   }
-  h+=`<section><h2 class="lh" data-e="Courses">講義を探す</h2><p class="count">${r.length}件　${p.get('all')?'全学部':'基幹教育・芸術工学部'}${active||p.get('place')||p.get('nolot')?'<button class="lnk" id="fclear" type="button">条件をクリア</button>':''}<button class="lnk" id="scope" type="button">${p.get('all')?'基幹教育・芸術工学部のみ':'すべての学部を表示'}</button></p>${mineOn()?`<p class="count">${esc(clsName(CLS))} で受講できる授業(B表 前期${esc(BTV['前期']||'-')}・後期${esc(BTV['後期']||'-')}版で判定)</p>`:''}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
+  h+=`<section><h2 class="lh" data-e="Courses">講義を探す</h2><p class="count">${r.length}件　${p.get('all')?'全学部':'基幹教育・芸術工学部'}${active||p.get('place')||p.get('nolot')?'<button class="lnk" id="fclear" type="button">条件をクリア</button>':''}<button class="lnk" id="scope" type="button">${p.get('all')?'基幹教育・芸術工学部のみ':'すべての学部を表示'}</button></p>${mineOn()?`<p class="count"><b>${esc(clsName(CLS))}</b> で受講できる授業(B表で判定)</p>`:''}${r.length?'':'<div class="empty"><div class="eg" aria-hidden="true">∅</div><p><b>条件に合う講義がありません</b></p><p class="note">キーワードを短くするか、絞り込みを減らしてみてください。</p></div>'}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
   v.innerHTML=h;
   const m=$('#more');m&&(m.onclick=()=>{shown+=100;renderList()});
   const fc=$('#fclear');fc&&(fc.onclick=()=>{const q=params();['q','sem','cat','sub','d','per','place','nolot'].forEach(k=>q.delete(k));history.replaceState(null,'','#/'+(q.toString()?'?'+q:''));shown=100;syncCtl();renderList()});
@@ -710,6 +722,7 @@ function restoreScroll(sv){
   let n=0;const go=()=>{window.scrollTo(0,sv.y);if(Math.abs(scrollY-sv.y)>2&&n++<30)requestAnimationFrame(go)};go();
 }
 try{if(!sessionStorage.getItem('sp')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){$('#splash').classList.add('go');sessionStorage.setItem('sp','1');setTimeout(()=>$('#splash').remove(),2400)}else $('#splash').remove()}catch(e){$('#splash')&&$('#splash').remove()}
+let vtBusy=false;
 /* 数字のカウントアップ */
 function countUp(root){
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -744,8 +757,10 @@ $('#days').addEventListener('click',e=>{const b=e.target.closest('[data-d]');b&&
 $('#view').addEventListener('click',e=>{if(e.target.closest('.item'))listScroll=window.scrollY});
 window.addEventListener('hashchange',()=>{
   saveScroll();inApp=true;
-  if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion:reduce)').matches)document.startViewTransition(()=>{route();countUp()});
-  else{route();countUp()}
+  const go=()=>{route();countUp()};
+  if(document.startViewTransition&&!document.hidden&&!vtBusy&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
+    try{vtBusy=true;const t=document.startViewTransition(go);const off=()=>{vtBusy=false};t.finished.then(off,off);t.ready.catch(()=>{});t.updateCallbackDone.catch(()=>{})}catch(e){vtBusy=false;go()}
+  }else go();
 });
 window.addEventListener('resize',measureHead);
 /* バージョン欄: 配信されているファイルの更新日時(Last-Modified)を見せる */
