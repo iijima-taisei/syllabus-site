@@ -697,7 +697,6 @@ const EXTSVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
     const y=scrollY;if(Date.now()<lock||ctl.hidden){last=y;return}
     if(y<20){pin=false;if(y<last)setCc(false,false)}
     else if(y>last+6&&y>160&&!pin)setCc(true,true);
-    else if(y<last-30){setCc(false,true)}
     last=y;
   },{passive:true});
   window.__cc={get:()=>ctl.classList.contains('cc'),set:on=>{ctl.classList.toggle('cc',on);measureHead();sync();last=scrollY;lock=Date.now()+300}};
