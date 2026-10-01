@@ -238,6 +238,8 @@ const clsName=v=>{const m=/^D(\d\d)-(\d)$/.exec(v||'');return m?ARTC[m[1]]+' '+m
 const upM=()=>/^D(\d\d)-(\d)$/.exec(CLS||'');
 const CKEY='kyudai-syllabus-class';
 let CLS=(()=>{try{return localStorage.getItem(CKEY)||''}catch(e){return ''}})();
+const COURSE_KEY='kyudai-syllabus-course';
+let COURSE=(()=>{try{return localStorage.getItem(COURSE_KEY)||''}catch(e){return ''}})();
 let BT=null,BTV={};
 // クラスが設定されていれば、既定で「受講可のみ」。?mine=0 で解除
 const mineOn=()=>!!CLS&&params().get('mine')!=='0';
@@ -875,10 +877,12 @@ function renderGrad(){
   const v=$('#view');$('#ctl').hidden=true;
   if(!ALL_REQS){v.innerHTML='<h2 class="lh">卒業要件</h2><p class="note">data/all_reqs.json が読み込めません。data フォルダに置いてください。</p>';return}
   const p=params();
-  let cid=p.get('c');
-  if(!cid){
+  let cid=p.get('c') || COURSE;
+  if(!cid || !ALL_REQS.some(r=>r.course===cid)){
     const ck=(upM()||/^S1-(\d\d)$/.exec(CLS||'')||[])[1];
     if(ck==='31'||ck==='33') cid='芸術工学部 芸術工学科 メディアデザインコース';
+    else if(ck==='32') cid='芸術工学部 芸術工学科 音響設計コース';
+    else if(ck>='34'&&ck<='37') cid='農学部';
     else cid='共創学部';
   }
   const R=ALL_REQS.find(r=>r.course===cid)||ALL_REQS[0];
@@ -887,24 +891,34 @@ function renderGrad(){
   let out=`<h2 class="lh" style="display:flex;align-items:center;flex-wrap:wrap">卒業要件 ${sel}</h2>`;
   if(R.source) out+=`<p class="srcnote">${esc(R.source)}</p>`;
   let doneAll=0,planAll=0;
+  let all_ok = true, all_ok_p = true;
   // --- 基幹教育
-  const K=R.kiban;let kd=0,kp=0,excess=0;const kr=[];
+  const K=R.kiban;let kd=0,kp=0,excess_d=0,excess_p=0;const kr=[];
   for(const g of K.groups){
     if(g.other)continue;
-    const e=kibanEarn(g),tot=e.d+e.pl;
-    if(['kb-en','kb-l2','kb-bun','kb-ri','kb-hs','kb-so','kb-hi'].includes(g.id))excess+=Math.max(0,tot-g.req);
+    const e=kibanEarn(g);
+    if(['kb-en','kb-l2','kb-bun','kb-ri','kb-hs','kb-so','kb-hi'].includes(g.id)){
+      excess_d+=Math.max(0,e.d-g.req);
+      excess_p+=Math.max(0,(e.d+e.pl)-g.req);
+    }
+    if(e.d < g.req) all_ok = false;
+    if(e.d+e.pl < g.req) all_ok_p = false;
     kr.push({g,e});
   }
   const og=K.groups.find(g=>g.other);
-  const oadj=PL.adj[og.id]||0,oauto=Math.min(og.req,excess);
+  const oadj=PL.adj[og.id]||0;
+  const oauto_d=Math.min(og.req,excess_d), oauto_p=Math.min(og.req,excess_p);
+  const od=Math.min(og.req,oauto_d+oadj), op=Math.min(og.req,oauto_p+oadj)-od;
+  if(od < og.req) all_ok = false;
+  if(od+Math.max(0,op) < og.req) all_ok_p = false;
   let hk=`<section class="gsec"><h3>基幹教育科目 <small>${K.total}単位</small></h3>`;
   for(const {g,e} of kr){
     const cap=Math.min(e.d,g.req),capP=Math.min(e.d+e.pl,g.req)-cap;
     kd+=cap;kp+=capP;
     hk+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${e.d}${e.pl?`(+${e.pl})`:''} / ${g.req}${e.d>=g.req?' ✓':''}</span></div>${bar(e.d,e.pl,g.req)}<p class="srcnote">${esc(g.note||'')}</p>${stepper(g.id,PL.adj[g.id]||0,'手入力の修得単位')}</div>`;
   }
-  const od=Math.min(og.req,oauto+oadj);kd+=od;
-  hk+=`<div class="grow"><div class="gh"><b>${esc(og.name)}</b><span class="gn2">${od} / ${og.req}${od>=og.req?' ✓':''}</span></div>${bar(od,0,og.req)}<p class="srcnote">${esc(og.note||'')}(自動: 各区分の超過分 ${oauto}単位)</p>${stepper(og.id,oadj,'手入力(他コース等)')}</div></section>`;
+  kd+=od; kp+=Math.max(0,op);
+  hk+=`<div class="grow"><div class="gh"><b>${esc(og.name)}</b><span class="gn2">${od}${Math.max(0,op)?`(+${Math.max(0,op)})`:''} / ${og.req}${od>=og.req?' ✓':''}</span></div>${bar(od,Math.max(0,op),og.req)}<p class="srcnote">${esc(og.note||'')}(自動: 各区分の超過分 ${oauto_p}単位)</p>${stepper(og.id,oadj,'手入力(他コース等)')}</div></section>`;
   // --- 専攻教育
   const S=R.senkou;const gs={};
   const cnt=courses=>{let d=0,pl=0;for(const c of courses){const st=mdStatus(c.n);if(st==='done')d+=c.cr;else if(st==='plan')pl+=c.cr}return{d,pl}};
@@ -915,25 +929,45 @@ function renderGrad(){
       if(g.derived)continue;
       let d=0,pl=0,body='';
       if(g.sub){
-        for(const sg of g.sub){const c=cnt(sg.courses);d+=c.d;pl+=c.pl;const ok=c.d>=sg.min;body+=`<div class="sgl"><b>${esc(sg.name)}</b> <span class="gn2">${c.d}${c.pl?`(+${c.pl})`:''}単位 ${ok?'✓':`(${sg.min}単位以上が必要)`}</span></div>`+courseList(sg.courses)}
+        for(const sg of g.sub){
+          const c=cnt(sg.courses);d+=c.d;pl+=c.pl;const ok=c.d>=sg.min;
+          if(c.d < sg.min) all_ok = false;
+          if(c.d+c.pl < sg.min) all_ok_p = false;
+          body+=`<div class="sgl"><b>${esc(sg.name)}</b> <span class="gn2">${c.d}${c.pl?`(+${c.pl})`:''}単位 ${ok?'✓':`(${sg.min}単位以上が必要)`}</span></div>`+courseList(sg.courses)
+        }
       }else{const c=cnt(g.courses);d=c.d;pl=c.pl;body=courseList(g.courses)}
       gs[g.id]={d,pl};
       const cap=Math.min(d,g.req);
       doneAll+=cap;planAll+=Math.min(d+pl,g.req)-cap;
+      if(d < g.req) all_ok = false;
+      if(d+pl < g.req) all_ok_p = false;
       hs+=`<div class="grow"><div class="gh"><b>${esc(g.name)}</b><span class="gn2">${d}${pl?`(+${pl})`:''} / ${g.req}${d>=g.req?' ✓':''}</span></div>${bar(d,pl,g.req)}${g.note?`<p class="srcnote">${esc(g.note)}</p>`:''}${body}</div>`;
     }
     const dg=S.groups.find(g=>g.derived),oth=PL.adj['sk-other']||0;
-    const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-25)+Math.max(0,(gs['sk-pbl']||{d:0}).d-20)+oth;
-    const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-25)+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-20)+oth-exD;
-    const dd=Math.min(dg.req,exD),dp=Math.min(dg.req-dd,Math.max(0,exP));
-    doneAll+=dd;planAll+=dp;
-    hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=4?'(4単位以上の条件を満たしています)':'(4単位以上が必要)'}</p></div></section>`;
+    if(dg){
+      const exD=Math.max(0,(gs['sk-sen']||{d:0}).d-25)+Math.max(0,(gs['sk-pbl']||{d:0}).d-20)+oth;
+      const exP=Math.max(0,((gs['sk-sen']||{d:0,pl:0}).d+(gs['sk-sen']||{pl:0}).pl)-25)+Math.max(0,((gs['sk-pbl']||{d:0,pl:0}).d+(gs['sk-pbl']||{pl:0}).pl)-20)+oth-exD;
+      const dd=Math.min(dg.req,exD),dp=Math.min(dg.req-dd,Math.max(0,exP));
+      doneAll+=dd;planAll+=dp;
+      if(oth < 4) { all_ok = false; all_ok_p = false; }
+      if(dd < dg.req) all_ok = false;
+      if(dd+dp < dg.req) all_ok_p = false;
+      hs+=`<div class="grow"><div class="gh"><b>${esc(dg.name)}</b><span class="gn2">${dd}${dp?`(+${dp})`:''} / ${dg.req}${dd>=dg.req?' ✓':''}</span></div>${bar(dd,dp,dg.req)}<p class="srcnote">${esc(dg.note)}</p>${stepper('sk-other',oth,'他コースの専門・演習')}<p class="srcnote">他コース科目 ${oth}単位 ${oth>=4?'(4単位以上の条件を満たしています)':'(4単位以上が必要)'}</p></div>`;
+    }
+    hs+=`</section>`;
   } else {
     const sd=PL.adj['senkou_done']||0,sp=PL.adj['senkou_plan']||0;
     doneAll+=sd;planAll+=sp;
+    if (sd < S.total) all_ok = false;
+    if (sd+sp < S.total) all_ok_p = false;
     hs+=`<div class="grow"><div class="gh"><b>専攻教育科目</b><span class="gn2">${sd}${sp?`(+${sp})`:''} / ${S.total}${sd>=S.total?' ✓':''}</span></div>${bar(sd,sp,S.total)}<p class="srcnote">※このコースの専攻教育科目の集計機能は未対応です。手入力で修得単位を足してください。</p>${stepper('senkou_done',sd,'修得済み手入力')} ${stepper('senkou_plan',sp,'履修予定手入力')}</div></section>`;
   }
   const tD=kd+doneAll,tP=kp+planAll;
+  if(tD < R.total) all_ok = false;
+  if(tD+tP < R.total) all_ok_p = false;
+  
+  const v_msg = all_ok ? '<div class="warn ok" style="background:var(--okbg);color:var(--ok);font-weight:bold;font-size:1.05rem">🎉 卒業要件を満たしています！</div>' : (all_ok_p ? '<div class="warn ok" style="background:var(--okbg);color:var(--ok);font-weight:bold;font-size:1.05rem">✅ 予定通り修得すれば卒業要件を満たします</div>' : '<div class="warn ng" style="background:var(--wnbg);color:var(--ng);font-weight:bold;font-size:1.05rem">⚠️ 卒業要件に不足があります</div>');
+  out += v_msg;
   out+=`<section class="gsec total"><h3>合計 <small>卒業要件 ${R.total}単位</small></h3><div class="big">${tD}<small> / ${R.total}単位 修得済み${tP?`(予定を入れると ${tD+tP})`:''}</small></div>${bar(tD,tP,R.total)}<p class="srcnote">各区分は上限(必要単位)までを数えています。あと ${Math.max(0,R.total-tD)}単位。</p></section>`+hk+hs;
   out+=`<section class="gsec"><h3>履修条件・注意</h3>${R.rules.map(r=>`<p class="srcnote" style="font-size:.85rem">${esc(r)}</p>`).join('')}<p class="srcnote">単位は履修プランの「修得済み」「履修予定」と、この画面の手入力から集計しています。正式な確認は学務システム・便覧で行ってください。</p></section>`;
   v.innerHTML=out;
