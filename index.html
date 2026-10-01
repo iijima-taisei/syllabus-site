@@ -545,8 +545,8 @@ function route(){
   $('#dbar').hidden=true;$('#dtitle').textContent='';$('#h1').hidden=false;
   renderNav();
   if(h.startsWith('#/c/')){renderDetail(decodeURIComponent(h.slice(4)))}
-  else if(/^#\/[twg](\?|$)/.test(h)){
-    document.title={t:'時間割',w:'科目比較',g:'卒業要件'}[h[2]]+' - 九大シラバス';
+  else if(/^#\/[twga](\?|$)/.test(h)){
+    document.title={t:'時間割',w:'科目比較',g:'卒業要件',a:'進級・修得基準判定'}[h[2]]+' - 九大シラバス';
     $('#ctl').hidden=true;rerender();measureHead();window.scrollTo(0,0);
   }
   else{document.title='九大シラバス';syncCtl();renderList();measureHead();window.scrollTo(0,listScroll)}
@@ -970,18 +970,19 @@ function renderGrad(){
   out += v_msg;
   out+=`<section class="gsec total"><h3>合計 <small>卒業要件 ${R.total}単位</small></h3><div class="big">${tD}<small> / ${R.total}単位 修得済み${tP?`(予定を入れると ${tD+tP})`:''}</small></div>${bar(tD,tP,R.total)}<p class="srcnote">各区分は上限(必要単位)までを数えています。あと ${Math.max(0,R.total-tD)}単位。</p></section>`+hk+hs;
   out+=`<section class="gsec"><h3>履修条件・注意</h3>${R.rules.map(r=>`<p class="srcnote" style="font-size:.85rem">${esc(r)}</p>`).join('')}<p class="srcnote">単位は履修プランの「修得済み」「履修予定」と、この画面の手入力から集計しています。正式な確認は学務システム・便覧で行ってください。</p></section>`;
-  v.innerHTML=out;
+
+    v.innerHTML=out;
 }
 
 /* ---------- 共通: ナビ・イベント・初期化 ---------- */
 function renderNav(){
-  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')]];
+  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')],['#/a','進級・修得基準判定',h.startsWith('#/a')]];
   const n=$('#nav');n.hidden=h.startsWith('#/c/');
   n.innerHTML=items.map(([u,l,on])=>`<a href="${u}"${on?' class="on"':''}>${l}</a>`).join('');
 }
 function rerender(){
   const h=location.hash;
-  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();
+  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();else if(h.startsWith('#/a'))renderAdv();
 }
 function bumpTT(code){/* 追加・削除のあと、同じ画面を描き直す */rerender()}
 $('#view').addEventListener('click',e=>{
@@ -1008,8 +1009,9 @@ $('#view').addEventListener('click',e=>{
 $('#view').addEventListener('change',e=>{
   if(e.target.id==='course_select'){
     const p=params(); p.set('c', e.target.value);
-    history.replaceState(null,'','#/g?'+p);
-    renderGrad();
+    const isAdv = location.hash.startsWith('#/a');
+    history.replaceState(null,'', (isAdv ? '#/a?' : '#/g?') + p);
+    if (isAdv) renderAdv(); else renderGrad();
     return;
   }
   if(e.target.id==='pfile'){
@@ -1027,11 +1029,158 @@ $('#view').addEventListener('change',e=>{
   }
   if(e.target.id==='tcls'){CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}renderTT()}
 });
+function renderAdv() {
+  const v = $('#view'); $('#ctl').hidden = true;
+  if (!ALL_REQS) { v.innerHTML = '<h2 class="lh">進級・修得基準判定</h2><p class="note">data/all_reqs.json が読み込めません。</p>'; return; }
+  
+  const p = params();
+  let cid = p.get('c') || COURSE;
+  if (!cid || !ALL_REQS.some(r => r.course === cid)) {
+    const ck = (upM() || /^S1-(\d\d)$/.exec(CLS || '') || [])[1];
+    if (ck === '31' || ck === '33') cid = '芸術工学部 芸術工学科 メディアデザインコース';
+    else if (ck === '32') cid = '芸術工学部 芸術工学科 音響設計コース';
+    else if (ck >= '34' && ck <= '37') cid = '農学部';
+    else cid = '共創学部';
+  }
+  const R = ALL_REQS.find(r => r.course === cid) || ALL_REQS[0];
+  cid = R.course;
+  
+  const sel = `<select id="course_select" style="margin-left:1em;font-size:1rem">${ALL_REQS.map(r => `<option value="${esc(r.course)}"${r.course === cid ? ' selected' : ''}>${esc(r.course)}</option>`).join('')}</select>`;
+  let out = `<h2 class="lh" style="display:flex;align-items:center;flex-wrap:wrap">進級・修得基準判定 ${sel}</h2>`;
+  out += `<p class="srcnote">※現在の時間割（1年次）の計画から、1年次終了時の進級可能性や標準修得基準を満たせるかを判定します。各コースの選択必修等の詳細な内訳（要項後半の表）は、手動のチェックも併用してください。</p>`;
+
+  let kd = 0, kp = 0;
+  // Calculate done/plan kiban credits (similar to renderGrad but simplified for 1st year view)
+  const K = R.kiban;
+  for (const c of DATA) {
+    if (c.cat === '専門') continue;
+    const st = mdStatus(c.n);
+    if (st === 'done') kd += crOf(c);
+    else if (st === 'plan') kp += crOf(c);
+  }
+
+  const count = (names) => {
+    let d = 0, pl = 0;
+    for (const n of names) {
+      const st = mdStatus(n);
+      const c = DATA.find(x => nameKey(x.n) === nameKey(n));
+      if (st === 'done') d += (c ? crOf(c) : 1);
+      else if (st === 'plan') pl += (c ? crOf(c) : 1);
+    }
+    return { d, pl, tot: d + pl };
+  };
+
+  let adv_h = '<section class="gsec"><h3>1年次の進級要件・修得基準</h3>';
+  let rules = [];
+  const kiban = kd + kp;
+
+  // Generic check rules based on course
+  if (cid.startsWith('文学部')) {
+    const jinbun = count(['人文学基礎Ⅰ', '人文学基礎Ⅱ']);
+    rules.push({ name: '基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '専攻教育科目「人文学基礎Ⅰ」または「人文学基礎Ⅱ」から2単位以上', ok: jinbun.d >= 2, ok_p: jinbun.tot >= 2 });
+    rules.push({ name: '合計 39単位以上', ok: kd + jinbun.d >= 39, ok_p: kiban + jinbun.tot >= 39 });
+  } else if (cid === '教育学部') {
+    const req1 = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目']);
+    const req2 = count(['心理学入門', '現代教育学入門', '教育基礎学入門']);
+    rules.push({ name: '基幹教育セミナー、課題発見科目、学術アプローチ科目（計3単位）', ok: req1.d >= 3, ok_p: req1.tot >= 3 });
+    rules.push({ name: '心理学入門、現代教育学入門、教育基礎学入門（計4単位）', ok: req2.d >= 4, ok_p: req2.tot >= 4 });
+    rules.push({ name: '基幹教育科目 合計30単位以上', ok: kd >= 30, ok_p: kiban >= 30 });
+  } else if (cid === '理学部 物理学科') {
+    const jikken = count(['自然科学総合実験']);
+    rules.push({ name: '自然科学総合実験（1単位）', ok: jikken.d >= 1, ok_p: jikken.tot >= 1 });
+    rules.push({ name: '基幹教育科目 合計26単位以上', ok: kd >= 26, ok_p: kiban >= 26 });
+  } else if (cid === '理学部 化学科') {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', '自然科学総合実験']);
+    rules.push({ name: '基幹教育セミナー、課題発見科目、学術アプローチ科目、自然科学総合実験（計4単位）', ok: req.d >= 4, ok_p: req.tot >= 4 });
+    rules.push({ name: '基幹教育科目 合計26単位以上', ok: kd >= 26, ok_p: kiban >= 26 });
+  } else if (cid === '理学部 地球惑星科学科') {
+    rules.push({ name: '基幹教育科目 合計26単位以上', ok: kd >= 26, ok_p: kiban >= 26 });
+  } else if (cid === '理学部 生物学科') {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', '自然科学総合実験']);
+    const kiso = count(['基礎生命科学', '生態学', '基礎生物学', '生物科学の最前線A', '生物科学の最前線B']);
+    rules.push({ name: '基幹教育セミナー、課題発見科目、学術アプローチ科目、自然科学総合実験（計4単位）', ok: req.d >= 4, ok_p: req.tot >= 4 });
+    rules.push({ name: '低年次専攻教育科目から2単位', ok: kiso.d >= 2, ok_p: kiso.tot >= 2 });
+    rules.push({ name: '合計26単位以上', ok: kd + kiso.d >= 26, ok_p: kiban + kiso.tot >= 26 });
+  } else if (cid === '医学部 医学科' || cid === '医学部 生命科学科') {
+    rules.push({ name: '1年次に修得すべき基幹教育科目 39単位すべて', ok: kd >= 39, ok_p: kiban >= 39 });
+  } else if (cid === '医学部 保健学科 看護学専攻') {
+    const senmon = count(['コミュニケーション論']);
+    rules.push({ name: '1年次に修得すべき基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: 'コミュニケーション論（1単位）', ok: senmon.d >= 1, ok_p: senmon.tot >= 1 });
+  } else if (cid === '医学部 保健学科 放射線技術科学専攻') {
+    const senmon = count(['放射線技術科学入門Ⅰ', '放射線技術科学入門Ⅱ', '放射線技術科学入門I', '放射線技術科学入門II']);
+    rules.push({ name: '1年次に修得すべき基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '放射線技術科学入門Ⅰ・Ⅱ（計4単位）', ok: senmon.d >= 4, ok_p: senmon.tot >= 4 });
+  } else if (cid === '医学部 保健学科 検査技術科学専攻') {
+    const senmon = count(['臨床検査学概論Ⅰ', '臨床検査学概論Ⅱ', '臨床検査学概論I', '臨床検査学概論II']);
+    rules.push({ name: '1年次に修得すべき基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '臨床検査学概論Ⅰ・Ⅱ（計2単位）', ok: senmon.d >= 2, ok_p: senmon.tot >= 2 });
+  } else if (cid === '歯学部') {
+    const senmon = count(['歯学オリエンテーション', '歯学概論１', '歯学概論２', '歯学概論３', '歯学概論４', '解剖学１', '口腔組織学１', '口腔解剖学１', '口腔解剖学３', '口腔解剖学４', '口腔生理学１']);
+    rules.push({ name: '1年次に修得すべき基幹教育科目 37単位すべて', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '指定された専攻教育科目 11科目（計8.5単位）', ok: senmon.d >= 8.5, ok_p: senmon.tot >= 8.5 });
+  } else if (cid.startsWith('薬学部')) {
+    const senmon = count(['創薬科学総論Ⅰ', '創薬科学総論Ⅱ', '創薬科学総論Ⅲ', '創薬科学総論Ⅳ', '物理薬学Ⅰ', '生命薬学ⅠA']);
+    rules.push({ name: '1年次必修・選択必修の未修得が4単位以下 (基幹38+専攻7=45単位中41単位以上)', ok: kd + senmon.d >= 41, ok_p: kiban + senmon.tot >= 41 });
+  } else if (cid.startsWith('芸術工学部')) {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '情報科学Ⅰ', '情報科学Ⅱ', '自然科学総合実験']);
+    const riD = count(['微分積分学Ⅰ', '微分積分学Ⅱ', '入門微分積分Ⅰ', '入門微分積分Ⅱ', '線形代数学Ⅰ', '線形代数学Ⅱ', '入門線形代数Ⅰ', '入門線形代数Ⅱ', '力学基礎', '電磁気学基礎', '熱力学基礎', '基礎物理学Ⅰ', '基礎物理学Ⅱ', '無機物質化学Ⅰ', '無機物質化学Ⅱ', '有機物質化学Ⅰ', '有機物質化学Ⅱ', '基礎生命科学', '細胞生物学', '地球科学入門', '宇宙科学入門', 'プログラミング演習', '図形科学Ⅰ', 'データサイエンス入門', '先端技術入門A', '先端技術入門B']);
+    rules.push({ name: '1年次必修: 基幹教育セミナー, 課題発見, 学術アプローチ, サイバー, 健スポ, 情報科学Ⅰ・Ⅱ, 自然科学総合実験（計8単位）', ok: req.d >= 8, ok_p: req.tot >= 8 });
+    rules.push({ name: '1年次必修・選択必修等を含め 理系ディシプリン科目 16単位以上修得（詳細内訳は要項参照）', ok: riD.d + 3 >= 16, ok_p: riD.tot + 3 >= 16 });
+    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
+  } else if (cid.startsWith('工学部')) {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '微分積分学Ⅰ', '微分積分学Ⅱ', '線形代数学Ⅰ', '線形代数学Ⅱ', '力学基礎', '電磁気学基礎', '熱力学基礎', '無機物質化学Ⅰ', '有機物質化学Ⅰ', '図形科学Ⅰ', 'プログラミング演習', '先端技術入門Ａ', '先端技術入門Ｂ', '自然科学総合実験']);
+    const senmon = count(['工学倫理', 'データサイエンス序論', '電気情報工学入門', '建築概論']);
+    rules.push({ name: '1年次必修基幹教育科目', ok: req.d >= 21, ok_p: req.tot >= 21 });
+    rules.push({ name: '1年次必修専攻教育科目（工学倫理、データ等）', ok: senmon.d >= 2, ok_p: senmon.tot >= 2 });
+    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
+  } else if (cid === '農学部') {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '入門微分積分Ⅰ', '入門微分積分Ⅱ', '入門線形代数Ⅰ', '入門線形代数Ⅱ', '無機物質化学Ⅰ', '無機物質化学Ⅱ', '有機物質化学Ⅰ', '有機物質化学Ⅱ', '細胞生物学', '情報科学Ⅰ', '情報科学Ⅱ', '自然科学総合実験']);
+    const senmon = count(['農学入門Ⅰ', '農学入門Ⅱ', '情報演習Ⅰ', '情報演習Ⅱ']);
+    rules.push({ name: '1年次必修基幹教育科目（計18単位）', ok: req.d >= 18, ok_p: req.tot >= 18 });
+    rules.push({ name: '1年次必修専攻教育科目: 農学入門Ⅰ・Ⅱ、情報演習Ⅰ・Ⅱ（計6単位）', ok: senmon.d >= 6, ok_p: senmon.tot >= 6 });
+    rules.push({ name: '1年次に38単位を修得', ok: kd >= 38, ok_p: kiban >= 38 });
+  } else if (cid === '共創学部') {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '情報科学Ⅰ', '情報科学Ⅱ', 'プログラミング演習', '自然科学総合実験']);
+    rules.push({ name: '1年次必修基幹教育科目（計9単位）', ok: req.d >= 9, ok_p: req.tot >= 9 });
+    rules.push({ name: '1年次に36単位を修得', ok: kd >= 36, ok_p: kiban >= 36 });
+  } else if (cid.startsWith('経済学部')) {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習']);
+    rules.push({ name: '1年次必修基幹教育科目（計5単位）', ok: req.d >= 5, ok_p: req.tot >= 5 });
+    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
+  } else if (cid === '法学部' || cid === '理学部 数学科') {
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習']);
+    rules.push({ name: '1年次必修基幹教育科目（計5単位）', ok: req.d >= 5, ok_p: req.tot >= 5 });
+    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
+  }
+
+  let a_ok = true;
+  let a_ok_p = true;
+  let r_html = '<ul class="plan">';
+  for (const r of rules) {
+    if (!r.ok) a_ok = false;
+    if (!r.ok_p) a_ok_p = false;
+    const mark = r.ok_p ? (r.ok ? '<span class="ok" style="color:var(--ok)">達成</span>' : '<span class="ok" style="color:var(--ok)">予定</span>') : '<span class="ng" style="color:var(--ng)">不足</span>';
+    r_html += `<li><span style="font-weight:bold; width: 3em; display: inline-block;">${mark}</span> ${r.name}</li>`;
+  }
+  r_html += '</ul>';
+
+  const a_msg = a_ok ? '<div class="warn ok" style="background:var(--okbg);color:var(--ok);font-weight:bold;margin-bottom:8px">🎉 1年次の進級要件・修得基準を満たしています！</div>' : 
+                (a_ok_p ? '<div class="warn ok" style="background:var(--okbg);color:var(--ok);font-weight:bold;margin-bottom:8px">✅ 予定通り修得すれば1年次の進級要件・修得基準を満たします</div>' : 
+                            '<div class="warn ng" style="background:var(--wnbg);color:var(--ng);font-weight:bold;margin-bottom:8px">⚠️ 1年次の進級要件・修得基準に不足があります</div>');
+  
+  adv_h += a_msg + r_html + '<p class="srcnote">※厳密な「進級要件（満たさないと留年となる条件）」が設定されていない学部でも、1年次に修得すべき必修科目や標準修得単位数（目安）を判定しています。</p></section>';
+  
+  out += adv_h;
+  v.innerHTML = out;
+}
+
 function initFeatures(){
   BYC=Object.fromEntries(DATA.map(c=>[c.c,c]));
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/all_reqs.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;ALL_REQS=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});</script>
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/all_reqs.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at])=>{DATA=j;ALL_REQS=md;ATABLE=at;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">'+err.message+'<br>'+err.stack+'</p>'});</script>
 </body>
 </html>
