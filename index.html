@@ -615,34 +615,31 @@ function parseManualToDummy(reqData){
     let pendingNames = [];
     for(let p of parts){
       p=p.trim(); if(!p)continue;
-      let match=p.match(/^(.+?)\((.+?)\)$/);
+      let match=p.match(/^(.+?)(?:\((.+?)\))?$/);
       if(match){
-        let name=match[1].trim(), times=match[2];
+        let name=match[1].trim(), times=match[2]||"";
         pendingNames.push(name);
+        let whens=[];
         if(/[月火水木金]\d/.test(times)){
-          let whens=[], currentSem="前期", timeParts=times.split(/[・、]/);
+          let currentSem="前期", timeParts=times.split(/[・、]/);
           for(let tp of timeParts){
             tp=tp.trim();
             let semMatch=tp.match(/^(前期|後期|春|夏|秋|冬)学?期?\s*(.+)$/);
             if(semMatch){currentSem=semMatch[1]+(tp.includes('学期')?'学期':'');tp=semMatch[2];}
             let dayMatch=tp.match(/([月火水木金])(\d)/);
-            if(dayMatch)whens.push(`${currentSem}\u3000${FULL_DAYS[dayMatch[1]]}\u3000${dayMatch[2]}時限`);
-          }
-          if(whens.length){
-            for(let pending of pendingNames){
-              let code='dm_'+btoa(unescape(encodeURIComponent(pending+times))).replace(/[^a-zA-Z0-9]/g,'').substring(0,16);
-              if(!BYC[code]){
-                let dummy={c:code, n:pending+' (枠)', when:whens, cat:'基幹教育科目', dummy:true, credit:'-', t:'担当未定'};
-                DATA.push(dummy);
-                BYC[code]=dummy;
-              }
-              if(!reqData.codes.includes(code))reqData.codes.push(code);
-            }
+            if(dayMatch)whens.push(`${currentSem}　${FULL_DAYS[dayMatch[1]]}　${dayMatch[2]}時限`);
           }
         }
+        for(let pending of pendingNames){
+          let code='dm_'+btoa(unescape(encodeURIComponent(pending+times))).replace(/[^a-zA-Z0-9]/g,'').substring(0,16);
+          if(!BYC[code]){
+            let dummy={c:code, n:pending, when:whens, cat:'基幹教育科目', dummy:true, credit:'-', t:'(未定枠)'};
+            DATA.push(dummy);
+            BYC[code]=dummy;
+          }
+          if(!reqData.codes.includes(code))reqData.codes.push(code);
+        }
         pendingNames=[];
-      } else {
-        pendingNames.push(p);
       }
     }
   }
