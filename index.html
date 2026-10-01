@@ -1075,9 +1075,16 @@ function renderAdv() {
   const kiban = kd + kp;
 
   // Generic check rules based on course
-  if (cid.startsWith('文学部')) {
+  if (cid === '文学部 国際コース') {
+    // 要項P35: 国際コースは基幹36単位以上 + 専攻2単位以上 = 合計38単位以上（専門分野決定要件）
     const jinbun = count(['人文学基礎Ⅰ', '人文学基礎Ⅱ']);
-    rules.push({ name: '基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '基幹教育科目 36単位以上（国際コース専門分野決定のための1年次目標）', ok: kd >= 36, ok_p: kiban >= 36 });
+    rules.push({ name: '専攻教育科目「人文学基礎Ⅰ」または「人文学基礎Ⅱ」から2単位以上', ok: jinbun.d >= 2, ok_p: jinbun.tot >= 2 });
+    rules.push({ name: '合計 38単位以上', ok: kd + jinbun.d >= 38, ok_p: kiban + jinbun.tot >= 38 });
+  } else if (cid.startsWith('文学部')) {
+    // 要項P33: 基幹37単位以上 + 専攻2単位以上 = 合計39単位以上（専門分野決定要件）
+    const jinbun = count(['人文学基礎Ⅰ', '人文学基礎Ⅱ']);
+    rules.push({ name: '基幹教育科目 37単位以上（専門分野決定のための1年次目標）', ok: kd >= 37, ok_p: kiban >= 37 });
     rules.push({ name: '専攻教育科目「人文学基礎Ⅰ」または「人文学基礎Ⅱ」から2単位以上', ok: jinbun.d >= 2, ok_p: jinbun.tot >= 2 });
     rules.push({ name: '合計 39単位以上', ok: kd + jinbun.d >= 39, ok_p: kiban + jinbun.tot >= 39 });
   } else if (cid === '教育学部') {
@@ -1103,7 +1110,9 @@ function renderAdv() {
     rules.push({ name: '低年次専攻教育科目から2単位', ok: kiso.d >= 2, ok_p: kiso.tot >= 2 });
     rules.push({ name: '合計26単位以上', ok: kd + kiso.d >= 26, ok_p: kiban + kiso.tot >= 26 });
   } else if (cid === '医学部 医学科' || cid === '医学部 生命科学科') {
-    rules.push({ name: '1年次に修得すべき基幹教育科目 39単位すべて', ok: kd >= 39, ok_p: kiban >= 39 });
+    // 要項P55/P57: 「1年次において39単位を修得する」は目標値。明示的な進級ハードルは学科ガイダンスで確認
+    rules.push({ name: '1年次の修得目標: 基幹教育科目 39単位（要項記載の目安）', ok: kd >= 39, ok_p: kiban >= 39 });
+    rules.push({ name: '※詳細な進級条件は学科ガイダンス・学生便覧で確認してください', ok: true, ok_p: true });
   } else if (cid === '医学部 保健学科 看護学専攻') {
     const senmon = count(['コミュニケーション論']);
     rules.push({ name: '1年次に修得すべき基幹教育科目 37単位以上', ok: kd >= 37, ok_p: kiban >= 37 });
@@ -1120,6 +1129,7 @@ function renderAdv() {
     const senmon = count(['歯学オリエンテーション', '歯学概論１', '歯学概論２', '歯学概論３', '歯学概論４', '解剖学１', '口腔組織学１', '口腔解剖学１', '口腔解剖学３', '口腔解剖学４', '口腔生理学１']);
     rules.push({ name: '1年次に修得すべき基幹教育科目 37単位すべて', ok: kd >= 37, ok_p: kiban >= 37 });
     rules.push({ name: '指定された専攻教育科目 11科目（計8.5単位）', ok: senmon.d >= 8.5, ok_p: senmon.tot >= 8.5 });
+    rules.push({ name: '⚠️ 上記に加え「GPA2.0以上」が進級条件です（Campusmate-Jで確認）', ok: true, ok_p: true });
   } else if (cid.startsWith('薬学部')) {
     const senmon = count(['創薬科学総論Ⅰ', '創薬科学総論Ⅱ', '創薬科学総論Ⅲ', '創薬科学総論Ⅳ', '物理薬学Ⅰ', '生命薬学ⅠA']);
     rules.push({ name: '1年次必修・選択必修の未修得が4単位以下 (基幹38+専攻7=45単位中41単位以上)', ok: kd + senmon.d >= 41, ok_p: kiban + senmon.tot >= 41 });
@@ -1142,17 +1152,28 @@ function renderAdv() {
     rules.push({ name: '1年次必修専攻教育科目: 農学入門Ⅰ・Ⅱ、情報演習Ⅰ・Ⅱ（計6単位）', ok: senmon.d >= 6, ok_p: senmon.tot >= 6 });
     rules.push({ name: '1年次に38単位を修得', ok: kd >= 38, ok_p: kiban >= 38 });
   } else if (cid === '共創学部') {
-    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '情報科学Ⅰ', '情報科学Ⅱ', 'プログラミング演習', '自然科学総合実験']);
-    rules.push({ name: '1年次必修基幹教育科目（計9単位）', ok: req.d >= 9, ok_p: req.tot >= 9 });
-    rules.push({ name: '1年次に36単位を修得', ok: kd >= 36, ok_p: kiban >= 36 });
+    // 要項P31: 1年次の理系必修は「情報科学Ⅰ・Ⅱ・自然科学総合実験」の3科目3単位。プログラミング演習は選択必修。
+    // 必修科目: セミナー1+課題発見1+学術アプローチ1+サイバー1+健スポ1+情報Ⅰ1+情報Ⅱ1+自然科学実験1 = 計8単位
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習', '情報科学Ⅰ', '情報科学Ⅱ', '自然科学総合実験']);
+    const riD = count(['プログラミング演習', '入門微分積分Ⅰ', '入門微分積分Ⅱ', '微分積分学Ⅰ', '微分積分学Ⅱ', '入門線形代数Ⅰ', '入門線形代数Ⅱ', '線形代数学Ⅰ', '線形代数学Ⅱ', '身の回りの物理学A', '身の回りの物理学B', '力学基礎', '力学概論', '電磁気学基礎', '電磁気学概論', '熱力学基礎', '熱力学概論', '生命の科学Ａ', '生命の科学Ｂ', '地球と宇宙の科学', '地球科学', 'デザインアプローチ', '図形科学Ⅰ', '図形科学Ⅱ', '実験で学ぶ自然科学']);
+    rules.push({ name: '1年次必修基幹教育科目（セミナー・課題発見・学術AP・サイバー・健スポ・情報Ⅰ・Ⅱ・自然科学実験、計8単位）', ok: req.d >= 8, ok_p: req.tot >= 8 });
+    rules.push({ name: '1年次理系ディシプリン選択必修から5単位以上修得（目安）', ok: riD.d >= 5, ok_p: riD.tot >= 5 });
+    rules.push({ name: '1年次に36単位を修得（目安）', ok: kd >= 36, ok_p: kiban >= 36 });
   } else if (cid.startsWith('経済学部')) {
+    // 要項P41/P43: 「特に進級の要件は定めない。」→ 共通必修の確認のみ
     const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習']);
     rules.push({ name: '1年次必修基幹教育科目（計5単位）', ok: req.d >= 5, ok_p: req.tot >= 5 });
-    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
-  } else if (cid === '法学部' || cid === '理学部 数学科') {
+    rules.push({ name: '1年次に37単位を修得（目安）', ok: kd >= 37, ok_p: kiban >= 37 });
+  } else if (cid === '法学部') {
+    // 要項P39: 「特に進級の要件は定めない。」
     const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習']);
-    rules.push({ name: '1年次必修基幹教育科目（計5単位）', ok: req.d >= 5, ok_p: req.tot >= 5 });
-    rules.push({ name: '1年次に37単位を修得', ok: kd >= 37, ok_p: kiban >= 37 });
+    rules.push({ name: '1年次必修基幹教育科目（計5単位）— 要項に明示的な進級単位要件はありません', ok: req.d >= 5, ok_p: req.tot >= 5 });
+    rules.push({ name: '1年次に37単位を修得（目安）', ok: kd >= 37, ok_p: kiban >= 37 });
+  } else if (cid === '理学部 数学科') {
+    // 要項: 「特に進級の要件は定めない。」
+    const req = count(['基幹教育セミナー', '課題発見科目', '学術アプローチ科目', 'サイバーセキュリティ基礎論', '健康・スポーツ科学演習']);
+    rules.push({ name: '1年次必修基幹教育科目（計5単位）— 要項に明示的な進級単位要件はありません', ok: req.d >= 5, ok_p: req.tot >= 5 });
+    rules.push({ name: '1年次に37単位を修得（目安）', ok: kd >= 37, ok_p: kiban >= 37 });
   }
 
   let a_ok = true;
