@@ -612,28 +612,37 @@ function parseManualToDummy(reqData){
   reqData.parsed=true;
   for(let m of reqData.manual){
     let text=m.split(':')[0], parts=text.split(/[・、](?![^()]*\))/);
+    let pendingNames = [];
     for(let p of parts){
-      let match=p.match(/(.+?)\((.+?)\)/);
+      p=p.trim(); if(!p)continue;
+      let match=p.match(/^(.+?)\((.+?)\)$/);
       if(match){
-        let name=match[1].replace(/^[・、\s]+/, '').trim(), times=match[2];
-        if(!/[月火水木金]\d/.test(times))continue;
-        let whens=[], currentSem="前期", timeParts=times.split(/[・、]/);
-        for(let tp of timeParts){
-          tp=tp.trim();
-          let semMatch=tp.match(/^(前期|後期|春|夏|秋|冬)学?期?\s*(.+)$/);
-          if(semMatch){currentSem=semMatch[1]+(tp.includes('学期')?'学期':'');tp=semMatch[2];}
-          let dayMatch=tp.match(/([月火水木金])(\d)/);
-          if(dayMatch)whens.push(`${currentSem}\u3000${FULL_DAYS[dayMatch[1]]}\u3000${dayMatch[2]}時限`);
-        }
-        if(whens.length){
-          let code='dm_'+btoa(unescape(encodeURIComponent(name+times))).replace(/[^a-zA-Z0-9]/g,'').substring(0,16);
-          if(!BYC[code]){
-            let dummy={c:code, n:name+' (枠)', when:whens, cat:'基幹教育科目', dummy:true, credit:'-', t:'担当未定'};
-            DATA.push(dummy);
-            BYC[code]=dummy;
+        let name=match[1].trim(), times=match[2];
+        pendingNames.push(name);
+        if(/[月火水木金]\d/.test(times)){
+          let whens=[], currentSem="前期", timeParts=times.split(/[・、]/);
+          for(let tp of timeParts){
+            tp=tp.trim();
+            let semMatch=tp.match(/^(前期|後期|春|夏|秋|冬)学?期?\s*(.+)$/);
+            if(semMatch){currentSem=semMatch[1]+(tp.includes('学期')?'学期':'');tp=semMatch[2];}
+            let dayMatch=tp.match(/([月火水木金])(\d)/);
+            if(dayMatch)whens.push(`${currentSem}\u3000${FULL_DAYS[dayMatch[1]]}\u3000${dayMatch[2]}時限`);
           }
-          if(!reqData.codes.includes(code))reqData.codes.push(code);
+          if(whens.length){
+            for(let pending of pendingNames){
+              let code='dm_'+btoa(unescape(encodeURIComponent(pending+times))).replace(/[^a-zA-Z0-9]/g,'').substring(0,16);
+              if(!BYC[code]){
+                let dummy={c:code, n:pending+' (枠)', when:whens, cat:'基幹教育科目', dummy:true, credit:'-', t:'担当未定'};
+                DATA.push(dummy);
+                BYC[code]=dummy;
+              }
+              if(!reqData.codes.includes(code))reqData.codes.push(code);
+            }
+          }
         }
+        pendingNames=[];
+      } else {
+        pendingNames.push(p);
       }
     }
   }
