@@ -243,7 +243,7 @@ let COURSE=(()=>{try{return localStorage.getItem(COURSE_KEY)||''}catch(e){return
 let BT=null,BTV={};
 // クラスが設定されていれば、既定で「受講可のみ」。?mine=0 で解除
 const mineOn=()=>!!CLS&&params().get('mine')!=='0';
-// 受講可否: yes / no / intl(留学生向け) / unk(B表の対象外の科目) / nodata(基幹教育なのにB表に無い=1年生用ではない)
+// 受講可否: yes / no / intl(留学生向け) / unk(B表の対象外の科目) / nodata(基幹教育なのにB表に無い=高年次用)
 function elig(c){
   const b=c.b,um=upM();
   if(um){   // 芸術工学部 2〜4年: 芸工の科目は「対象コース・学年」、基幹教育はB表の全学年・高年次だけ
@@ -254,7 +254,8 @@ function elig(c){
   }
   const sm=/^S1-(\d\d)$/.exec(CLS||'');
   if(c.cx&&sm&&+sm[1]>=28&&+sm[1]<=33)return (sm[1]==='33'?Object.keys(c.cx).length:c.cx[sm[1]])&&(!c.yr.length||c.yr.includes(1))?'yes':'no';
-  if(!b)return /基幹教育/.test(c.cat||'')?'nodata':'unk';
+  // B表未登録の基幹教育科目: 1年生・全学年対象なら全クラス受講可(unk)、それ以外は高年次用(nodata)
+  if(!b){const g=zen(c.grade||'');const is1yr=!g||(!/^(修士|博士)/.test(g)&&/全学年|1/.test(g));return /基幹教育/.test(c.cat||'')?(is1yr?'unk':'nodata'):'unk';}
   if(b.cs.includes(CLS))return 'yes';
   if(b.fl.includes('ALL'))return /・日本語】/.test(b.cat)?'intl':'yes';
   return 'no';
