@@ -245,6 +245,7 @@ let BT=null,BTV={};
 const mineOn=()=>!!CLS&&params().get('mine')!=='0';
 // 受講可否: yes / no / intl(留学生向け) / unk(B表の対象外の科目) / nodata(基幹教育なのにB表に無い=高年次用)
 function elig(c){
+  if(c.dummy) return 'yes';
   const b=c.b,um=upM();
   if(um){   // 芸術工学部 2〜4年: 芸工の科目は「対象コース・学年」、基幹教育はB表の全学年・高年次だけ
     const y=+um[2];
@@ -333,7 +334,7 @@ function histGet(){try{const a=JSON.parse(localStorage.getItem(HKEY)||'[]');retu
 function histAdd(code){try{localStorage.setItem(HKEY,JSON.stringify([code,...histGet().filter(x=>x!==code)].slice(0,30)))}catch(e){}}
 function histClear(){try{localStorage.removeItem(HKEY)}catch(e){}}
 let histAll=false;
-const itemHTML=c=>`<a class="item" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><div>${c.credit?`<span class="tag s">${esc(c.credit)}単位</span> `:''}${c.cat?`<span class="tag">${esc(c.cat)}</span> `:''}${c.lang?`<span class="tag">${esc(c.lang)}</span>`:''}${badgeHTML(c)}${PL.p[c.c]?` <span class="tag s">${PL.p[c.c]==='done'?'修得済み':'履修予定'}</span>`:''}</div></a>`;
+const itemHTML=c=>`<a class="item" href="${c.dummy?'javascript:void(0)':'#/c/'+esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><div>${c.credit?`<span class="tag s">${esc(c.credit)}単位</span> `:''}${c.cat?`<span class="tag">${esc(c.cat)}</span> `:''}${c.lang?`<span class="tag">${esc(c.lang)}</span>`:''}${badgeHTML(c)}${PL.p[c.c]?` <span class="tag s">${PL.p[c.c]==='done'?'修得済み':'履修予定'}</span>`:''}</div></a>`;
 function renderList(){
   const r=filtered(),v=$('#view'),p=params();
   $('#ctl').hidden=false;
@@ -605,16 +606,50 @@ const stLabel={plan:'履修予定',done:'修得済み'};
 const hm=s=>esc(s);
 // 自動で履修予定に入れられる必修: 1年生はA表(data/atable.json)、芸工2〜4年は対象コース・学年で「必修」の科目
 const REQC={};
+const FULL_DAYS={'月':'月曜日','火':'火曜日','水':'水曜日','木':'木曜日','金':'金曜日'};
+function parseManualToDummy(reqData){
+  if(!reqData.manual||reqData.parsed)return;
+  reqData.parsed=true;
+  for(let m of reqData.manual){
+    let text=m.split(':')[0], parts=text.split(/[・、](?![^()]*\))/);
+    for(let p of parts){
+      let match=p.match(/(.+?)\((.+?)\)/);
+      if(match){
+        let name=match[1].replace(/^[・、\s]+/, '').trim(), times=match[2];
+        if(!/[月火水木金]\d/.test(times))continue;
+        let whens=[], currentSem="前期", timeParts=times.split(/[・、]/);
+        for(let tp of timeParts){
+          tp=tp.trim();
+          let semMatch=tp.match(/^(前期|後期|春|夏|秋|冬)学?期?\s*(.+)$/);
+          if(semMatch){currentSem=semMatch[1]+(tp.includes('学期')?'学期':'');tp=semMatch[2];}
+          let dayMatch=tp.match(/([月火水木金])(\d)/);
+          if(dayMatch)whens.push(`${currentSem}\u3000${FULL_DAYS[dayMatch[1]]}\u3000${dayMatch[2]}時限`);
+        }
+        if(whens.length){
+          let code='dm_'+btoa(unescape(encodeURIComponent(name+times))).replace(/[^a-zA-Z0-9]/g,'').substring(0,16);
+          if(!BYC[code]){
+            let dummy={c:code, n:name+' (枠)', when:whens, cat:'基幹教育科目', dummy:true, credit:'-', t:'担当未定'};
+            DATA.push(dummy);
+            BYC[code]=dummy;
+          }
+          if(!reqData.codes.includes(code))reqData.codes.push(code);
+        }
+      }
+    }
+  }
+}
 function reqFor(){
   if(!CLS)return null;
-  if(ATABLE&&ATABLE[CLS])return ATABLE[CLS];
+  if(ATABLE&&ATABLE[CLS]){ parseManualToDummy(ATABLE[CLS]); return ATABLE[CLS]; }
   const um=upM();if(!um)return null;
   if(REQC[CLS])return REQC[CLS];
   const k=um[1],y=+um[2],g=new Map();
   DATA.forEach(c=>{if(c.cx&&c.cx[k]==='h'&&(!c.yr.length||c.yr.includes(y))){const n=nameKey(c.n);(g.get(n)||g.set(n,[]).get(n)).push(c)}});
   const codes=[],manual=[];
   g.forEach((a,n)=>a.length===1?codes.push(a[0].c):manual.push(n+': 同じ科目が'+a.length+'件あるので、クラス・時間を選んで入れる'));
-  return REQC[CLS]={codes,manual};
+  const res = REQC[CLS]={codes,manual};
+  parseManualToDummy(res);
+  return res;
 }
 
 /* ---------- 時間割 ---------- */
@@ -681,10 +716,10 @@ function cellHTML(term,d,p,occ,idx,sel,confKeys){
 }
 function candRow(c,term){
   const cf=(()=>{const tq=TERMQ[term];const occ=occupancy(term);return cslots(c).some(s=>qHit(s.q,tq)&&(occ.get(s.d+'-'+s.p)||[]).some(o=>qHit(o.s.q,s.q)))})();
-  return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
+  return `<div class="pi"><a class="pit" href="${c.dummy?'javascript:void(0)':'#/c/'+esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
 }
 function planRow(c,st){
-  return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${crOf(c)?`　${crOf(c)}単位`:''}</span></a><span class="pib">${st==='plan'?`<button type="button" class="chip" data-done="${esc(c.c)}">修得済みにする</button>`:`<button type="button" class="chip" data-back="${esc(c.c)}">予定に戻す</button>`}<button type="button" class="chip" data-rm="${esc(c.c)}">外す</button></span></div>`;
+  return `<div class="pi"><a class="pit" href="${c.dummy?'javascript:void(0)':'#/c/'+esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${crOf(c)?`　${crOf(c)}単位`:''}</span></a><span class="pib">${st==='plan'?`<button type="button" class="chip" data-done="${esc(c.c)}">修得済みにする</button>`:`<button type="button" class="chip" data-back="${esc(c.c)}">予定に戻す</button>`}<button type="button" class="chip" data-rm="${esc(c.c)}">外す</button></span></div>`;
 }
 function renderTT(){
   const v=$('#view'),p=params(),term=p.get('t')||defTerm(),sel=p.get('s')||'',nolot=!!p.get('nolot');
@@ -846,7 +881,7 @@ async function renderCmp(){
       const f=METRIC[sortKey][1],x=a.g&&!a.g.err?f(a.g.rows):99,y=b.g&&!b.g.err?f(b.g.rows):99;
       return x-y||a.c.t.localeCompare(b.c.t,'ja');
     });
-    box.innerHTML=arr.map(({c,g})=>`<section class="cmp"><div class="cmph"><a href="#/c/${esc(c.c)}"><b>${esc(c.t||'担当未定')}</b></a>${PL.p[c.c]?` <span class="tag s">${stLabel[PL.p[c.c]]}</span>`:''}${badgeHTML(c)}</div><span class="meta">${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${c.b&&c.b.cls?'　'+esc(c.b.cls):''}</span>${g?cmpBar(g.rows):'<p class="note">読み込み中…</p>'}</section>`).join('')||'<p class="note">該当する授業がありません。</p>';
+    box.innerHTML=arr.map(({c,g})=>`<section class="cmp"><div class="cmph"><a href="${c.dummy?'javascript:void(0)':'#/c/'+esc(c.c)}"><b>${esc(c.t||'担当未定')}</b></a>${PL.p[c.c]?` <span class="tag s">${stLabel[PL.p[c.c]]}</span>`:''}${badgeHTML(c)}</div><span class="meta">${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}${c.b&&c.b.cls?'　'+esc(c.b.cls):''}</span>${g?cmpBar(g.rows):'<p class="note">読み込み中…</p>'}</section>`).join('')||'<p class="note">該当する授業がありません。</p>';
   };
   draw();
   let i=0;
