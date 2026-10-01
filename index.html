@@ -459,6 +459,43 @@ function condHTML(c){
   return `<section class="cond"><h3>受講条件</h3>${verdict?`<p class="verdict">${verdict}</p>`:''}<dl class="rows">${rows.map(([k,x])=>`<div><dt>${esc(k)}</dt><dd>${esc(x)}</dd></div>`).join('')}</dl><p class="srcnote">B表(${esc(b.term)}期 ${esc(BTV[b.term]||'')}版)より</p></section>`;
 }
 const subOf=c=>c.b?c.b.cat:(c.kbn||'');
+/* 科目区分を整理: B表の区分とCampusmateの区分(日英併記・表記ゆれ)を、グループ→項目の2段にそろえる */
+const SUB_G=['セミナー・課題発見・アプローチ','言語文化','文系ディシプリン','理系ディシプリン','総合科目','健康・スポーツ','サイバーセキュリティ','高年次基幹教育','芸術工学部'];
+const SUB_I={'言語文化':['英語','ドイツ語','フランス語','中国語','ロシア語','スペイン語','韓国語','日本語','多文化入門講義','その他の言語文化'],
+  '文系ディシプリン':['人文系','社会系','心理系','教育系','法学系','経済系','一般系'],'理系ディシプリン':['数学','物理','化学','生物','地球科学','情報','感性','実験','複合系'],
+  '芸術工学部':['デザインリテラシー科目','コース基礎科目','コース専門科目','コース演習科目 (PBL)','融合プロジェクト・プラットフォーム','卒業研究・設計','専攻教育科目']};
+const SUB_EN={'Subjects in Science':'理系ディシプリン科目','Subjects in Humanities and Social Science':'文系ディシプリン科目','Cybersecurity':'サイバーセキュリティ科目','Subject for Health and Sports Science':'健康・スポーツ科目'};
+function subKey(c){
+  if(c._sk)return c._sk;
+  let t=String(c.b?c.b.cat:(c.kbn||'')).replace(/[\u3000\s]+/g,' ').trim();
+  t=SUB_EN[t]||t.split(/ (?=[A-Za-z])/)[0].replace(/[：:].*$/,'').trim();
+  let g,i,m;
+  if(c.cat==='芸術工学部'){g='芸術工学部';i=t||'専攻教育科目'}
+  else if(c.cat!=='基幹教育科目'){g=c.cat||'その他';i=t||'その他'}
+  else if(/^(基幹教育セミナー|課題発見科目|学術アプローチ科目)/.test(t)){g='セミナー・課題発見・アプローチ';i=t.replace(/科目$/,'')}
+  else if(/言語文化/.test(t)){g='言語文化';i=(m=t.match(/言語文化・([^】]+)/))?m[1]:'その他の言語文化'}
+  else if(/文D|文系ディシプリン/.test(t)){g='文系ディシプリン';i=(m=t.match(/文D・([^】]+)/))?m[1]:'その他'}
+  else if(/理D|理系ディシプリン/.test(t)){g='理系ディシプリン';i=(m=t.match(/理D・([^】]+)】/))?m[1]:'その他'}
+  else if(/総合/.test(t)){g='総合科目';i=/フロンティア/.test(t)?'フロンティア科目':'オープン科目'}
+  else if(/健スポ|健康・スポーツ/.test(t)){g='健康・スポーツ';i=/実習/.test(t)?'実習':/講義/.test(t)?'講義':'その他'}
+  else if(/サイバー|Cyber/.test(t)){g='サイバーセキュリティ';i='サイバーセキュリティ'}
+  else if(/高年次/.test(t)){g='高年次基幹教育';i='高年次基幹教育'}
+  else{g='その他';i=t||'その他'}
+  return c._sk={g,i};
+}
+const subMatch=(c,sub)=>{const k=subKey(c),[g,i]=sub.split('|');return k.g===g&&(!i||k.i===i)};
+function subOptions(cat,cur){
+  const m=new Map();
+  pool().filter(c=>!cat||c.cat===cat).forEach(c=>{const k=subKey(c);if(!m.has(k.g))m.set(k.g,new Map());const mi=m.get(k.g);mi.set(k.i,(mi.get(k.i)||0)+1)});
+  const gs=[...m.keys()].sort((a,b)=>{const x=SUB_G.indexOf(a),y=SUB_G.indexOf(b);return (x<0?99:x)-(y<0?99:y)||a.localeCompare(b,'ja')});
+  const h=gs.map(g=>{
+    const mi=m.get(g),tot=[...mi.values()].reduce((a,b)=>a+b,0),order=SUB_I[g]||[];
+    const its=[...mi.keys()].sort((a,b)=>{const x=order.indexOf(a),y=order.indexOf(b);return (x<0?99:x)-(y<0?99:y)||mi.get(b)-mi.get(a)});
+    const one=its.length===1&&its[0]===g;
+    const v=g+'|';
+    return `<optgroup label="${esc(g)}">${one?'':`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(g)}すべて (${tot})</option>`}${its.map(i=>{const val=g+'|'+i;return `<option value="${esc(val)}"${val===cur?' selected':''}>${esc(one?g:i)} (${mi.get(i)})</option>`}).join('')}</optgroup>`}).join('');
+  return '<option value="">科目区分</option>'+h;
+}
 const pool=()=>params().get('all')?DATA:DATA.filter(c=>SCOPE.test(c.cat||''));
 let DATA=[],shown=100,listScroll=0;
 const params=()=>new URLSearchParams(location.hash.split('?')[1]||'');
@@ -472,7 +509,7 @@ function syncCtl(){
   opts('#sem','集中など',uniq(c=>slots(c).map(s=>s.sem)).filter(x=>!BASESEM.has(x)),p.get('sem'));
   $('#sems').innerHTML=SEMS.map(x=>`<button class="chip" aria-pressed="${p.get('sem')===x}" data-s="${x}">${x}</button>`).join('');
   opts('#cat','区分',uniq(c=>[c.cat]),p.get('cat'));
-  {const cat=p.get('cat');opts('#sub','科目区分',[...new Set(pool().filter(c=>!cat||c.cat===cat).map(subOf).filter(Boolean))].sort(),p.get('sub'))}
+  $('#sub').innerHTML=subOptions(p.get('cat'),p.get('sub'));
   opts('#per','時限',['1','2','3','4','5','6'].map(x=>x),p.get('per'));
   $('#myrow').hidden=$('#myrow2').hidden=false;
   const nocat=!DATA.some(c=>c.cat);
@@ -494,7 +531,7 @@ function filtered(){
   const sem=p.get('sem'),cat=p.get('cat'),sub=p.get('sub'),d=p.get('d'),per=p.get('per');
   return pool().filter(c=>{
     if(cat&&c.cat!==cat)return false;
-    if(sub&&subOf(c)!==sub)return false;
+    if(sub&&sub.includes('|')&&!subMatch(c,sub))return false;
     const hay=(c.n+c.t+(c.kw||'')+c.c+(c.cat||'')).toLowerCase();
     if(!q.every(t=>hay.includes(t)))return false;
     if(mineOn()){const e=elig(c);if(e!=='yes'&&e!=='unk')return false}
