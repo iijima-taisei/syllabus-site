@@ -164,6 +164,11 @@ h1{font-weight:700}
 .cgrp{border-bottom:1px solid var(--line)}.cgrp>summary{cursor:pointer;padding:9px 0;line-height:1.4}.cgrp>.lnk{display:block;padding:0 0 4px;min-height:0}.cgrp .pi{padding-left:10px;border-left:3px solid var(--line);border-bottom:0}
 .ver{border:0;background:none;color:var(--sub);font:inherit;font-size:.75rem;padding:4px 6px;cursor:pointer;text-decoration:underline dotted}
 #verinfo{background:var(--acbg);border-radius:8px;padding:8px 12px;font-size:.85rem;line-height:1.6;margin:4px 0}
+:root{--ak-r:#fff25c;--ak-m:#ffc04d;--ak-e:#fff;--ak-x:#c4c4c4}
+@media(prefers-color-scheme:dark){:root{--ak-r:#6b6a1f;--ak-m:#7a5418;--ak-e:#18202a;--ak-x:#3a4048}}
+.tlg .ak{width:14px;height:14px;border:1px solid var(--line)}.ak.rq{background:var(--ak-r)}.ak.mj{background:var(--ak-m)}.ak.el{background:var(--ak-e)}.ak.xx{background:var(--ak-x)}
+.atb .acell{min-height:66px;border:1px solid var(--line);border-radius:6px;padding:3px;display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:var(--ink);overflow:hidden}
+.atb .acell span{font-size:.62rem;line-height:1.25;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .cmph{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cmph .cpb{margin-left:auto}
 .cell.multi .cc{font-size:.72rem;-webkit-line-clamp:2}
 .cell.has.rq{background:var(--okbg);border-color:var(--ok)}
@@ -564,8 +569,8 @@ function route(){
   $('#dbar').hidden=true;$('#dtitle').textContent='';$('#h1').hidden=false;
   renderNav();
   if(h.startsWith('#/c/')){renderDetail(decodeURIComponent(h.slice(4)))}
-  else if(/^#\/[twg](\?|$)/.test(h)){
-    document.title={t:'時間割',w:'科目比較',g:'卒業要件'}[h[2]]+' - 九大シラバス';
+  else if(/^#\/[atwg](\?|$)/.test(h)){
+    document.title={t:'時間割',a:'A表',w:'科目比較',g:'卒業要件'}[h[2]]+' - 九大シラバス';
     $('#ctl').hidden=true;rerender();measureHead();restoreScroll(sv);
   }
   else{document.title='九大シラバス';syncCtl();renderList();measureHead();restoreScroll(sv)}
@@ -605,7 +610,7 @@ $('#view').addEventListener('click',e=>{
 const PKEY='kyudai-syllabus-plan';
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem(PKEY)||'{}');return{p:o.p||{},adj:o.adj||{},md:o.md||{}}}catch(e){return{p:{},adj:{},md:{}}}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null;const SER=new Map();
+let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null,AGRID=null;const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -743,7 +748,7 @@ function renderTT(){
     g+=`<div class="tl"><b>${i}</b><small>${TIMES[i]||''}</small></div>`+DAYS.map(d=>cellHTML(term,d,i,occ,idx,sel,confKeys)).join('');
   }
   g+='</div>';
-  let h=`<div class="row" id="ttctl">${['前期','後期'].map(t=>`<button class="chip" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="tcls" aria-label="自分のクラス"><option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}</select><button class="chip" data-nolot="1" aria-pressed="${nolot}">抽選なし</button></div>`;
+  let h=`<div class="row" id="ttctl">${['前期','後期'].map(t=>`<button class="chip" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="tcls" aria-label="自分のクラス"><option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}</select><button class="chip" data-nolot="1" aria-pressed="${nolot}">抽選なし</button><a class="chip" href="#/a?t=${term}">A表を見る ›</a></div>`;
   const at=reqFor();
   let atb='';
   if(at){const todo=at.codes.filter(c=>!PL.p[c]);atb=`<div class="row" style="margin-top:10px">${todo.length?`<button class="chip" id="patb" type="button">${at.codes.length===todo.length?'必修':'未登録の必修'} ${todo.length}科目を履修予定に入れる</button>`:`<span class="note">${at.codes.length?'必修は履修予定に入れ済みです':'自動で入れられる必修はありません'}</span>`}</div>${at.manual&&at.manual.length?`<details class="note"><summary>必修のうち、自動では入れられないもの(${at.manual.length})</summary><ul>${at.manual.map(x=>typeof x==='string'?`<li>${esc(x)}</li>`:`<li><a href="#/w?n=${encodeURIComponent(x.n)}">${esc(x.t)}</a></li>`).join('')}</ul></details>`:''}`}
@@ -980,19 +985,46 @@ function renderGrad(){
 
 /* ---------- 共通: ナビ・イベント・初期化 ---------- */
 function renderNav(){
-  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')]];
+  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')||h.startsWith('#/a')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')]];
   const n=$('#nav');n.hidden=h.startsWith('#/c/');
   n.innerHTML=items.map(([u,l,on])=>`<a href="${u}"${on?' class="on"':''}>${l}</a>`).join('');
 }
+/* ---------- A表(基幹教育科目の開講時間割枠) ---------- */
+const AK={r:['必修','rq'],m:['専攻教育','mj'],e:['選択・選択必修','el'],x:['原則履修不可','xx']};
+function renderA(){
+  const v=$('#view'),p=params(),term=p.get('t')||defTerm();$('#ctl').hidden=true;
+  const cls=p.get('c')||(/^D/.test(CLS||'')?'':CLS)||'';
+  const A=AGRID&&AGRID.classes;
+  if(!A){v.innerHTML='<h2 class="lh">A表</h2><p class="note">data/agrid.json が読み込めません。</p>';return}
+  const opts=CLASSDEF.filter(([g])=>!/2〜4年/.test(g)).map(([gn,a])=>`<optgroup label="${gn}">${a.filter(([x])=>A[x]).map(([x,l])=>`<option value="${x}"${x===cls?' selected':''}>${x}${l?' '+esc(l):''}</option>`).join('')}</optgroup>`).join('');
+  let h=`<a class="back" href="#/t?t=${term}">‹ 時間割</a><h2 class="lh">A表 <small>基幹教育科目の開講時間割枠(1年生用)</small></h2><div class="row">${['前期','後期'].map(t=>`<button class="chip" data-at="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="acls" aria-label="クラス" style="flex:1 1 100%"><option value="">クラスを選んでください</option>${opts}</select></div>`;
+  if(/^D/.test(CLS||'')&&!p.get('c'))h+='<p class="hint">A表は1年生用の資料です。2年生以上の芸術工学部の授業は、時間割の「この枠で取れる授業」で確認できます。</p>';
+  const g=cls&&A[cls]&&A[cls][term];
+  if(!g){h+=A&&cls?'<p class="note">このクラスのA表はありません。</p>':'<p class="hint">クラスを選ぶと、そのクラスの枠が表示されます。</p>'}
+  else{
+    h+=`<div class="tlg">${Object.entries(AK).map(([k,[l,c]])=>`<span><i class="ak ${c}"></i>${l}</span>`).join('')}</div><div class="tt atb"><div class="th"></div>${DAYS.map(d=>`<div class="th">${d}</div>`).join('')}`;
+    g.forEach((row,i)=>{
+      h+=`<div class="tl"><b>${i+1}</b><small>${TIMES[i+1]}</small></div>`;
+      row.forEach((c,di)=>{
+        const ks=c.k.length===2&&c.k[0]!==c.k[1]?[c.k[0],c.k[1]]:[c.k[0]];
+        h+=`<a class="acell${ks.length>1?' sp':''}" href="#/t?t=${term}&s=${DAYS[di]}-${i+1}"${ks.length>1?` style="background:linear-gradient(90deg,var(--ak-${ks[0]}) 50%,var(--ak-${ks[1]}) 50%)"`:` style="background:var(--ak-${ks[0]})"`} aria-label="${DAYS[di]}曜${i+1}限 ${esc(ks.map(k=>AK[k][0]).join('・'))}"><span>${esc(c.t)}</span></a>`;
+      });
+    });
+    h+='</div><p class="srcnote">コマをタップすると、時間割でその枠に入れられる授業を見られます。文字は資料の図から機械的に読み取っているため、崩れている場合があります。正式な内容は資料(A表)で確認してください。</p>';
+    h+=`<p class="srcnote">${esc(AGRID.source)}</p>`;
+  }
+  v.innerHTML=h;
+}
 function rerender(){
   const h=location.hash;
-  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();
+  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/a'))renderA();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();
 }
 function bumpTT(code){/* 追加・削除のあと、同じ画面を描き直す */rerender()}
 $('#view').addEventListener('click',e=>{
   const t=e.target,by=s=>t.closest(s);let b;
   if(b=by('[data-totop]')){document.querySelector('.tt').scrollIntoView({behavior:'smooth',block:'start'});return}
   if(b=by('[data-cell]')){const p=params(),k=b.dataset.cell;p.get('s')===k?p.delete('s'):p.set('s',k);history.replaceState(null,'','#/t?'+p);const y=scrollY,opening=p.get('s')===k;renderTT();scrollTo(0,y);if(opening){const pn=document.querySelector('.panel');if(pn)pn.scrollIntoView({behavior:'smooth',block:'start'})}return}
+  if(b=by('[data-at]')){const q=params();q.set('t',b.dataset.at);history.replaceState(null,'','#/a?'+q);renderA();return}
   if(b=by('[data-tt]')){const p=params();p.set('t',b.dataset.tt);p.delete('s');history.replaceState(null,'','#/t?'+p);renderTT();return}
   if(b=by('[data-nolot]')){const p=params();p.get('nolot')?p.delete('nolot'):p.set('nolot','1');history.replaceState(null,'','#/t?'+p);renderTT();return}
   if(b=by('[data-add]')){const y=scrollY;setPlan(b.dataset.add,'plan');renderTT();scrollTo(0,y);return}
@@ -1025,6 +1057,7 @@ $('#view').addEventListener('change',e=>{
     }).catch(()=>alert('読み込めませんでした。書き出したファイル(JSON)を選んでください。'));
     e.target.value='';return;
   }
+  if(e.target.id==='acls'){const q=params();e.target.value?q.set('c',e.target.value):q.delete('c');history.replaceState(null,'','#/a?'+q);renderA();return}
   if(e.target.id==='gcourse'){try{localStorage.setItem('kyudai-syllabus-gcourse',e.target.value)}catch(_){}renderGrad();return}
   if(e.target.id==='tcls'){try{localStorage.removeItem('kyudai-syllabus-gcourse')}catch(_){}CLS=e.target.value;try{localStorage.setItem(CKEY,CLS)}catch(_){}renderTT()}
 });
@@ -1033,7 +1066,7 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr])=>{DATA=j;MDREQ=md;ATABLE=at;COURSEREQ=cr;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag])=>{DATA=j;MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route()}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
 </script>
 </body>
 </html>
