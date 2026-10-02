@@ -339,17 +339,6 @@ mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--accent) 
   body::after{content:"KYUSHU UNIVERSITY  ·  SYLLABUS 2026  ·  UNOFFICIAL";position:fixed;left:28px;top:50%;writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.34em;color:var(--ink-3);pointer-events:none;white-space:nowrap}
 }
 /* ---------- 動き ---------- */
-#splash{position:fixed;inset:0;z-index:100;background:var(--paper);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;pointer-events:none}
-#splash.go{display:flex;animation:sp-out .8s var(--ease-io) 1.35s forwards}
-.sp-mark{width:56px;height:56px;display:grid;grid-template:repeat(2,1fr)/repeat(2,1fr);gap:5px}
-.sp-mark i{background:var(--ink);border-radius:4px;animation:sp-in .7s var(--ease) both}
-.sp-mark i:nth-child(1){background:var(--accent)}.sp-mark i:nth-child(2){animation-delay:.08s}.sp-mark i:nth-child(3){animation-delay:.16s}
-.sp-mark i:nth-child(4){background:transparent;box-shadow:inset 0 0 0 2.5px var(--ink);animation-delay:.24s}
-.sp-name{overflow:hidden}.sp-name span{display:block;font-family:var(--f-disp);font-weight:800;font-size:2rem;letter-spacing:.04em;animation:sp-text .8s var(--ease) .35s both}
-.sp-en{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);animation:rise .8s var(--ease) .7s both}
-@keyframes sp-in{from{transform:scale(0) rotate(-40deg);opacity:0}}
-@keyframes sp-text{from{transform:translateY(110%)}}
-@keyframes sp-out{to{transform:translateY(-100%);visibility:hidden}}
 @supports(animation-timeline:scroll()){
   .hero h2{animation:hero-shrink linear both;animation-timeline:scroll(root);animation-range:0 320px;transform-origin:left top}
   @keyframes hero-shrink{to{opacity:.25;transform:scale(.9) translateY(-6px)}}
@@ -367,7 +356,6 @@ mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--accent) 
 </style>
 </head>
 <body>
-<div id="splash" aria-hidden="true"><div class="sp-mark"><i></i><i></i><i></i><i></i></div><div class="sp-name"><span>九大シラバス</span></div><div class="sp-en">Kyushu Univ. Syllabus 2026</div></div>
 <header><div class="wrap">
 <h1 id="h1"><a href="#/" aria-label="九大シラバス ホーム"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="brand-name">九大シラバス</span><span class="brand-en">Syllabus 2026</span></a><button class="ver" id="ver" type="button" aria-expanded="false">v0930-時間割</button></h1>
 <div id="verinfo" hidden></div>
@@ -778,7 +766,6 @@ function restoreScroll(sv){
   if(window.__cc&&!$('#ctl').hidden)window.__cc.set(!!sv.cc);
   let n=0;const go=()=>{window.scrollTo(0,sv.y);if(Math.abs(scrollY-sv.y)>2&&n++<30)requestAnimationFrame(go)};go();
 }
-try{if(!sessionStorage.getItem('sp')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){$('#splash').classList.add('go');sessionStorage.setItem('sp','1');setTimeout(()=>$('#splash').remove(),2400)}else $('#splash').remove()}catch(e){$('#splash')&&$('#splash').remove()}
 let vtBusy=false;
 /* 数字のカウントアップ */
 function countUp(root){
