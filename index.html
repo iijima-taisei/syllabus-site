@@ -111,7 +111,8 @@ select{appearance:none;-webkit-appearance:none;padding-right:34px;background-ima
 #flt{animation:rise .4s var(--ease)}
 #flt>.row:has(select){display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #flt>.row:has(select) select{width:100%;flex:none}
-#flt #cls,#flt #place{grid-column:1/-1}
+#flt #cls,#flt #place,#flt #sub{grid-column:1/-1}
+#pers{flex-wrap:nowrap;gap:6px}#pers .chip{flex:1 1 0;padding-inline:0;min-width:0}
 #q{flex:1;width:auto;font-size:1.02rem;padding:14px 16px 14px 46px;border-radius:14px;background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M20 20l-3.5-3.5'/></svg>") no-repeat 16px center}
 .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .row select{flex:1 1 30%}
@@ -405,12 +406,13 @@ mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--accent) 
 <div class="srch"><input id="q" type="search" placeholder="講義名・教員・キーワード" autocomplete="off" enterkeyhint="search"><button class="fbtn" id="fltt" type="button" aria-expanded="false" aria-controls="flt" aria-label="絞り込み"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><b id="fltn" hidden></b></button></div>
 <div class="row" id="sems"></div>
 <div id="flt" hidden>
-<div class="row"><select id="sem"></select><select id="cat"></select><select id="sub"></select><select id="per"></select></div>
+<div class="row"><select id="sem"></select><select id="cat"></select><select id="sub"></select></div>
 <div class="row" id="myrow" hidden><select id="cls" aria-label="自分のクラス"></select><select id="place"></select></div>
 <p class="srcnote" id="btnote" hidden></p>
 <p class="srcnote" id="btver"></p>
 <div class="row" id="myrow2" hidden><button class="chip" id="mine" type="button" aria-pressed="false">受講可のみ</button><button class="chip" id="nolot" type="button" aria-pressed="false">抽選なし</button></div>
 <div class="row" id="days"></div>
+<div class="row" id="pers"></div>
 </div>
 </div></div></header>
 <nav id="nav" class="nav" aria-label="メニュー" hidden></nav>
@@ -561,7 +563,7 @@ function syncCtl(){
   $('#sems').innerHTML=SEMS.map(x=>`<button class="chip" aria-pressed="${p.get('sem')===x}" data-s="${x}">${x}</button>`).join('');
   opts('#cat','区分',uniq(c=>[c.cat]),p.get('cat'));
   $('#sub').innerHTML=subOptions(p.get('cat'),p.get('sub'));
-  opts('#per','時限',['1','2','3','4','5','6'].map(x=>x),p.get('per'));
+  $('#pers').innerHTML=['1','2','3','4','5','6'].map(x=>`<button class="chip" aria-pressed="${p.get('per')===x}" data-per="${x}">${x}限</button>`).join('');
   $('#myrow').hidden=$('#myrow2').hidden=false;
   const nocat=!DATA.some(c=>c.cat);
   $('#btnote').hidden=!!BT&&!nocat;
@@ -925,7 +927,8 @@ function route(){
   else{document.title='九大シラバス';syncCtl();renderList();measureHead();restoreScroll(sv)}
 }
 $('#q').addEventListener('input',e=>setP('q',e.target.value));
-for(const id of ['sem','cat','sub','per'])$('#'+id).addEventListener('change',e=>setP(id,e.target.value));
+$('#pers').addEventListener('click',e=>{const b=e.target.closest('[data-per]');b&&setP('per',params().get('per')===b.dataset.per?'':b.dataset.per)});
+for(const id of ['sem','cat','sub'])$('#'+id).addEventListener('change',e=>setP(id,e.target.value));
 $('#sems').addEventListener('click',e=>{const b=e.target.closest('[data-s]');b&&setP('sem',params().get('sem')===b.dataset.s?'':b.dataset.s)});
 $('#cls').addEventListener('change',e=>{setClass(e.target.value);shown=100;syncCtl();renderList()});
 $('#mine').addEventListener('click',()=>{if(!CLS){$('#cls').focus();return}setP('mine',mineOn()?'0':'')});
