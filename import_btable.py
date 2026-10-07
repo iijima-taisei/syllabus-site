@@ -178,19 +178,20 @@ def main():
     ap.add_argument("pdf", nargs="+")
     a = ap.parse_args()
     OUT.mkdir(exist_ok=True)
-    versions, allrows = {}, {}
+    versions, src, allrows = {}, {}, {}
     for p in a.pdf:
         term, date, rows = parse_pdf(p)
         print(f"{p}: {term} {date} → {len(rows)}件")
         if term:
             versions[term] = date
+            src[term] = pathlib.Path(p).name
         allrows.update(rows)
     noclass = [c for c, r in allrows.items() if not r["cs"] and not r["fl"]]
     print(f"合計 {len(allrows)}件 / 担当クラスを読み取れなかった講義 {len(noclass)}件" + (f" 例: {noclass[:5]}" if noclass else ""))
     overlap = [c for c, r in allrows.items() if not r["sem"] or not r["day"]]
     if overlap:
         print(f"科目名が長くて隣の列と重なり、学期・曜日を読めなかった講義 {len(overlap)}件(受講可否の判定には影響しません)")
-    (OUT / "btable.json").write_text(json.dumps({"versions": versions, "rows": allrows}, ensure_ascii=False,
+    (OUT / "btable.json").write_text(json.dumps({"versions": versions, "src": src, "rows": allrows}, ensure_ascii=False,
                                                 separators=(",", ":")), encoding="utf-8")
     print(f"→ {OUT/'btable.json'} を保存しました")
 
