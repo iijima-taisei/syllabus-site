@@ -685,6 +685,12 @@ def live_list(year, delay, debug):
 
 
 # ---------------------------------------------------------------- 保存
+def detail_name(code):
+    """詳細JSONのファイル名。大文字小文字だけ違うコード(26411405A と 26411405a)が、
+    大文字小文字を区別しないファイルシステム(macOS)で衝突しないよう、小文字の前に _ を付ける"""
+    return re.sub(r"([a-z])", r"_\1", code)
+
+
 def save_index(rows):
     OUT.mkdir(parents=True, exist_ok=True)
     tmp = OUT / "index.json.tmp"
@@ -707,7 +713,7 @@ def load_index():
 
 
 def read_detail(code):
-    p = DETAIL_DIR / f"{code}.json"
+    p = DETAIL_DIR / f"{detail_name(code)}.json"
     try:
         d = json.loads(p.read_text(encoding="utf-8"))
         return d if detail_ok(d) else None
@@ -716,8 +722,8 @@ def read_detail(code):
 
 
 def write_detail(code, d):
-    p = DETAIL_DIR / f"{code}.json"
-    tmp = DETAIL_DIR / f"{code}.json.tmp"
+    p = DETAIL_DIR / f"{detail_name(code)}.json"
+    tmp = DETAIL_DIR / f"{detail_name(code)}.json.tmp"
     tmp.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     tmp.replace(p)
 

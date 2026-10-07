@@ -756,7 +756,7 @@ async function renderDetail(code){
   v.innerHTML=heroHTML()+'<p class="note">読み込み中…</p>';
   window.scrollTo(0,0);measureHead();
   try{
-    const res=await fetch(`data/detail/${encodeURIComponent(code)}.json`);if(!res.ok)throw 0;
+    const res=await fetch(`data/detail/${encodeURIComponent(code.replace(/([a-z])/g,'_$1'))}.json`);if(!res.ok)throw 0;
     const d=await res.json(),secs=normalize(d);
     document.title=row.n+' - 九大シラバス';
     const find=k=>{for(const f of Object.values(secs))if(f[k])return f[k];return ''};
@@ -1229,7 +1229,7 @@ const GC={};
 async function gradeOf(code){
   if(GC[code])return GC[code];
   try{
-    const r=await fetch(`data/detail/${encodeURIComponent(code)}.json`);if(!r.ok)throw 0;
+    const r=await fetch(`data/detail/${encodeURIComponent(code.replace(/([a-z])/g,'_$1'))}.json`);if(!r.ok)throw 0;
     const secs=normalize(await r.json());let rows=[];
     for(const [t,f] of Object.entries(secs))if(kindOf(t)[0]==='grade')rows=rows.concat(parseGrade(Object.fromEntries(Object.entries(f).filter(([,x])=>x&&String(x).trim()))).rows);
     return GC[code]={rows};
