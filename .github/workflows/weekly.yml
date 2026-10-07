@@ -1,9 +1,9 @@
-name: B表の自動更新
+name: 講義一覧の週次更新
 
 on:
   schedule:
-    - cron: "0 21 * * *"   # 毎日 6:00 (日本時間)。GitHub の混雑で数十分遅れることがある
-  workflow_dispatch:        # Actions の画面から手動でも実行できる
+    - cron: "0 20 * * 0"   # 毎週月曜 5:00 (日本時間)
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -24,23 +24,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install pdfplumber
+      - run: pip install requests beautifulsoup4 lxml html5lib pykakasi
 
-      - name: 基幹教育院のページを確認して、新しいB表があれば取り込む
-        id: fetch
-        run: python fetch_btable.py
+      - name: 講義一覧を取り直し、新しい講義の詳細だけ取得
+        id: upd
+        run: python weekly_update.py
 
       - name: コミットして公開
-        if: steps.fetch.outputs.changed == 'true'
+        if: steps.upd.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/btable.json index.html
+          git add data/index.json data/detail data/yomi.json data/skipped.json index.html
           git diff --cached --quiet && { echo "差分なし"; exit 0; }
-          git commit -m "B表を自動更新 ${{ steps.fetch.outputs.versions }}"
+          git commit -m "講義一覧を週次更新 (${{ steps.upd.outputs.summary }})"
           git pull --rebase -q
           git push
-          # Actions からの push では Pages が自動で動かないことがあるので、明示的にビルドを依頼する
           gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages のビルド依頼に失敗(次の push で反映されます)"

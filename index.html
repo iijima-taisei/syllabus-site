@@ -579,13 +579,16 @@ function syncCtl(){
   $('#fltn').hidden=!na;$('#fltn').textContent=na;
 }
 $('#fltt').addEventListener('click',()=>{const f=$('#flt'),o=f.hidden;f.hidden=!o;$('#fltt').setAttribute('aria-expanded',o);measureHead()});
+// 検索用の正規化: 全角半角(NFKC)・大文字小文字・カタカナ→ひらがな をそろえる。科目名の読み(data/yomi.json)も検索対象
+let YOMI={};
+const kn=s=>String(s).normalize('NFKC').toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
 function filtered(){
-  const p=params(),q=(p.get('q')||'').toLowerCase().split(/[\s\u3000]+/).filter(Boolean);
+  const p=params(),q=kn(p.get('q')||'').split(/[\s\u3000]+/).filter(Boolean);
   const sem=p.get('sem'),cat=p.get('cat'),sub=p.get('sub'),d=p.get('d'),per=p.get('per');
   return pool().filter(c=>{
     if(cat&&c.cat!==cat)return false;
     if(sub&&sub.includes('|')&&!subMatch(c,sub))return false;
-    const hay=(c.n+c.t+(c.kw||'')+c.c+(c.cat||'')).toLowerCase();
+    const hay=c._hay||(c._hay=kn(c.n+' '+c.t+' '+(c.kw||'')+' '+c.c+' '+(c.cat||'')+' '+(YOMI[c.n]||'')+' '+c.n.replace(/[\u2160-\u2169]/g,ch=>String(ch.charCodeAt(0)-0x215F))));
     if(!q.every(t=>hay.includes(t)))return false;
     if(mineOn()){const e=elig(c);if(e!=='yes'&&e!=='unk')return false}
     if(p.get('nolot')&&c.b&&c.b.apply)return false;
@@ -1435,7 +1438,7 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag])=>{DATA=j;MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/yomi.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag,yo])=>{DATA=j;YOMI=yo||{};MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
 </script>
 </body>
 </html>
