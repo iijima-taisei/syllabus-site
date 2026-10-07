@@ -261,6 +261,7 @@ a.rel.cmp:hover{background:var(--ink);color:var(--paper)}
 .atb .acell{min-height:76px;border:1px solid var(--rule-2);border-radius:6px;padding:4px;display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:#16140f;overflow:hidden;transition:transform .3s var(--ease)}
 .atb .acell:hover{transform:translateY(-2px);box-shadow:0 8px 20px -8px rgba(0,0,0,.4)}
 @media(prefers-color-scheme:dark){.atb .acell{color:var(--ink)}}
+.atb .acell.sp-l{justify-content:flex-start}.atb .acell.sp-r{justify-content:flex-end}.atb .acell.sp-l span,.atb .acell.sp-r span{width:50%;padding:0 2px}
 .atb .acell span{font-size:.7rem;line-height:1.25;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;font-weight:500}
 .panel{border-top:1px solid var(--ink);margin-top:22px;padding-top:6px;scroll-margin-top:calc(var(--hh) + 8px)}
 .panel h3{font-size:1.4rem;margin:14px 0 6px}.panel h3 small{font-family:var(--f-mono);font-weight:400;color:var(--ink-3);font-size:.76rem;letter-spacing:.06em}
@@ -1381,7 +1382,8 @@ function renderA(){
       h+=`<div class="tl"><b>${i+1}</b><small>${TIMES[i+1]}</small></div>`;
       row.forEach((c,di)=>{
         const ks=c.k.length===2&&c.k[0]!==c.k[1]?[c.k[0],c.k[1]]:[c.k[0]];
-        h+=`<a class="acell${ks.length>1?' sp':''}" href="#/t?t=${term}&s=${DAYS[di]}-${i+1}"${ks.length>1?` style="background:linear-gradient(90deg,var(--ak-${ks[0]}) 50%,var(--ak-${ks[1]}) 50%)"`:` style="background:var(--ak-${ks[0]})"`} aria-label="${DAYS[di]}曜${i+1}限 ${esc(ks.map(k=>AK[k][0]).join('・'))}"><span>${esc(c.t)}</span></a>`;
+        const side=ks.length>1?(ks[1]==='x'?' sp-l':ks[0]==='x'?' sp-r':''):'';
+        h+=`<a class="acell${ks.length>1?' sp':''}${side}" href="#/t?t=${term}&s=${DAYS[di]}-${i+1}"${ks.length>1?` style="background:linear-gradient(90deg,var(--ak-${ks[0]}) 50%,var(--ak-${ks[1]}) 50%)"`:` style="background:var(--ak-${ks[0]})"`} aria-label="${DAYS[di]}曜${i+1}限 ${esc(ks.map(k=>AK[k][0]).join('・'))}"><span>${esc(c.t)}</span></a>`;
       });
     });
     h+='</div><p class="srcnote">コマをタップすると、時間割でその枠に入れられる授業を見られます。文字は資料の図から機械的に読み取っているため、崩れている場合があります。正式な内容は資料(A表)で確認してください。</p>';
