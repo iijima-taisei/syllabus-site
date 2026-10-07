@@ -971,7 +971,7 @@ $('#view').addEventListener('click',e=>{
 const PKEY='kyudai-syllabus-plan';
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem(PKEY)||'{}');return{p:o.p||{},adj:o.adj||{},md:o.md||{}}}catch(e){return{p:{},adj:{},md:{}}}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null,AGRID=null,ENGLIT={};const SER=new Map();
+let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null,AGRID=null,CWARI={};const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -1003,9 +1003,9 @@ const hm=s=>esc(s);
 const REQC={};
 function reqFor(){
   if(!CLS)return null;
-  // 1年生: A表の必修 + Moodle のクラス割でクラス単位に決まる学術英語・アカデミックリテラシー
-  const lit=ENGLIT[CLS],at=ATABLE&&ATABLE[CLS];
-  if(at||lit)return {codes:[...new Set([...(at?at.codes:[]),...(lit?[lit]:[])])],manual:at?at.manual:[]};
+  // 1年生: A表の必修 + Moodle のクラス割でクラス単位に決まる学術英語
+  const cw=(CWARI[CLS]&&CWARI[CLS].req)||[],at=ATABLE&&ATABLE[CLS];
+  if(at||cw.length)return {codes:[...new Set([...(at?at.codes:[]),...cw])],manual:at?at.manual:[]};
   const um=upM();if(!um)return null;
   if(REQC[CLS])return REQC[CLS];
   const k=um[1],y=+um[2],g=new Map();
@@ -1084,7 +1084,7 @@ function clashes(c,term){
 }
 function candRow(c,term){
   const cf=clashes(c,term);
-  return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
+  return `<div class="pi"><a class="pit" href="#/c/${esc(c.c)}"><b>${esc(c.n)}</b><span class="meta">${esc(c.t)}　${c.when.map(w=>esc(w.replace(/[\s\u3000]+/g,' '))).join(' / ')}</span><span>${crOf(c)?`<span class="tag s">${crOf(c)}単位</span> `:''}${badgeHTML(c)}${CLS&&CWARI[CLS]&&[...(CWARI[CLS].req||[]),...(CWARI[CLS].sec||[])].includes(c.c)?' <span class="tag s">クラス割</span>':''}${cf?' <span class="tag no">重複</span>':''}</span></a><button type="button" class="chip add" data-add="${esc(c.c)}">追加</button></div>`;
 }
 // 同じ科目名が複数(クラス・教員違い)ある候補は1行にまとめて、開くと一覧が出る
 function candList(cands,term,limit){
@@ -1440,7 +1440,7 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/yomi.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/englit.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag,yo,el])=>{DATA=j;YOMI=yo||{};ENGLIT=(el&&el.classes)||{};MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/yomi.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/classwari.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag,yo,el])=>{DATA=j;YOMI=yo||{};CWARI=(el&&el.classes)||{};MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
 </script>
 </body>
 </html>
