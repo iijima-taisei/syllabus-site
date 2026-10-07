@@ -346,7 +346,8 @@ body.obon{overflow:hidden}
 .ob-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
 .ob-prog{display:flex;gap:6px}.ob-prog i{width:22px;height:4px;border-radius:2px;background:var(--rule-2);transition:background .3s,width .3s var(--ease)}.ob-prog i.on{background:var(--ink);width:30px}
 .ob-x{border:0;background:none;font-size:.86rem;font-weight:700;color:var(--ink-2);padding:10px 4px;cursor:pointer;text-decoration:underline;text-underline-offset:.3em;text-decoration-color:var(--rule-2)}
-.ob-body{animation:rise .45s var(--ease)}
+.ob-body.enter{animation:obstep .32s var(--ease)}
+@keyframes obstep{from{opacity:0;transform:translateX(14px)}}
 .ob-body h2{font-size:clamp(1.7rem,6.4vw,2.2rem);line-height:1.3;margin:6px 0 12px}
 .ob-body .eyebrow{color:var(--accent-t);margin:14px 0 0}
 .ob-p{margin:0 0 14px;color:var(--ink-2);font-size:.95rem}
@@ -843,7 +844,8 @@ function obSteps(){
 function obOpen(fromMenu){
   const g=profFromCls(CLS)||{};
   Object.assign(OB,{step:0,fromMenu:!!fromMenu,fac:(PROF&&PROF.fac)||g.fac||'',year:(PROF&&PROF.year)||g.year||0,cls:CLS});
-  let el=$('#ob');if(!el){el=document.createElement('div');el.id='ob';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-labelledby','obh');document.body.appendChild(el)}
+  let el=$('#ob');if(!el){el=document.createElement('div');el.id='ob';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-labelledby','obh');el.innerHTML='<div class="ob-card"><div class="ob-top"></div><div class="ob-body"></div><div class="ob-foot"></div></div>';document.body.appendChild(el)}
+  OB.shown='';OB.busy=false;
   document.body.classList.add('obon');obRender();
 }
 function obClose(){const el=$('#ob');el&&el.remove();document.body.classList.remove('obon');meLabel()}
@@ -878,17 +880,19 @@ function obRender(){
   const foot=k==='hello'?`<button type="button" class="ob-main" data-onext>はじめる</button><button type="button" class="ob-sub" data-oskip>スキップして使う</button>`
     :k==='done'?`<button type="button" class="ob-main" data-odone>使いはじめる</button><button type="button" class="ob-sub" data-oback>戻る</button>`
     :`<button type="button" class="ob-sub" data-oback${first?' hidden':''}>戻る</button>`;
-  el.innerHTML=`<div class="ob-card"><div class="ob-top"><div class="ob-prog" aria-hidden="true">${st.map((_,i)=>`<i${i<=OB.step?' class="on"':''}></i>`).join('')}</div>${OB.fromMenu?'<button type="button" class="ob-x" data-oclose aria-label="閉じる">閉じる</button>':k!=='hello'&&k!=='done'?'<button type="button" class="ob-x" data-oskip>スキップ</button>':''}</div><div class="ob-body" key="${k}">${body}</div><div class="ob-foot">${foot}</div></div>`;
+  el.querySelector('.ob-top').innerHTML=`<div class="ob-prog" aria-hidden="true">${st.map((_,i)=>`<i${i<=OB.step?' class="on"':''}></i>`).join('')}</div>${OB.fromMenu?'<button type="button" class="ob-x" data-oclose aria-label="閉じる">閉じる</button>':k!=='hello'&&k!=='done'?'<button type="button" class="ob-x" data-oskip>スキップ</button>':''}`;
+  const bd=el.querySelector('.ob-body');bd.innerHTML=body;el.querySelector('.ob-foot').innerHTML=foot;
+  if(OB.shown!==k){bd.classList.remove('enter');void bd.offsetWidth;bd.classList.add('enter');OB.shown=k}
   const f=el.querySelector('[aria-pressed=true]')||el.querySelector('.ob-main,.ob-opt');f&&f.focus({preventScroll:true});
 }
 document.addEventListener('click',e=>{
   const ob=e.target.closest('#ob');if(!ob)return;
-  let b;const go=d=>{OB.step=Math.max(0,Math.min(obSteps().length-1,OB.step+d));obRender()};
-  const pick=fn=>{fn();obRender();setTimeout(()=>go(1),170)};
+  let b;const go=d=>{if(OB.busy)return;OB.step=Math.max(0,Math.min(obSteps().length-1,OB.step+d));obRender()};
+  const pick=(btn,fn)=>{if(OB.busy)return;OB.busy=true;fn();btn.closest('.ob-opts').querySelectorAll('.ob-opt').forEach(x=>x.setAttribute('aria-pressed',String(x===btn)));setTimeout(()=>{OB.busy=false;go(1)},180)};
   if(e.target===ob){if(OB.fromMenu)obClose();return}
-  if(b=e.target.closest('[data-ofac]'))return pick(()=>{const v=b.dataset.ofac;if(v!==OB.fac)OB.cls='';OB.fac=v;OB.year=OB.year||0});
-  if(b=e.target.closest('[data-oyear]'))return pick(()=>{const v=b.dataset.oyear;const y=v==='G'?'G':+v;if(y!==OB.year)OB.cls='';OB.year=y});
-  if(b=e.target.closest('[data-ocls]'))return pick(()=>{OB.cls=b.dataset.ocls});
+  if(b=e.target.closest('[data-ofac]'))return pick(b,()=>{const v=b.dataset.ofac;if(v!==OB.fac)OB.cls='';OB.fac=v;OB.year=OB.year||0});
+  if(b=e.target.closest('[data-oyear]'))return pick(b,()=>{const v=b.dataset.oyear;const y=v==='G'?'G':+v;if(y!==OB.year)OB.cls='';OB.year=y});
+  if(b=e.target.closest('[data-ocls]'))return pick(b,()=>{OB.cls=b.dataset.ocls});
   if(e.target.closest('[data-onext]'))return go(1);
   if(e.target.closest('[data-oback]'))return go(-1);
   if(e.target.closest('[data-oskip]'))return obSkip();
