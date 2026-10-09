@@ -9,3 +9,12 @@ data/unparsed/
 data/plan_probe_*.html
 data/plan_sample_*.html
 CLAUDE.md
+# 履修資料の元ファイル(クラス割の Excel には学籍番号が入っている)と秘密情報はコミットしない
+*.xlsx
+*.xls
+*.csv
+.env
+.env.*
+*.pem
+*.key
+.claude/

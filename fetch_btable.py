@@ -7,7 +7,7 @@
 - 取り込み結果の講義数が前回より大きく減ったときは、読み取りの失敗とみなして元のデータに戻し、失敗で終わる。
 - 更新したら index.html のフッターの「最終更新」日付も書き換える。
 """
-import json, os, pathlib, re, subprocess, sys, tempfile, urllib.request
+import json, os, pathlib, re, subprocess, sys, tempfile, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
 
 PAGE = "https://www.artsci.kyushu-u.ac.jp/campus_life/course.html"
@@ -18,10 +18,23 @@ UA = "kyudai-syllabus-viewer (unofficial; daily B-table check)"
 NAME = re.compile(r"(\d{4})([zk])_jikan_tableB_(\d{8})\.pdf")
 
 
+HOST = "www.artsci.kyushu-u.ac.jp"
+MAX_BYTES = 30 * 1024 * 1024   # B表PDFは数MB。これを超えるものは取り込まない
+
+
 def get(url):
+    # 取得先は基幹教育院のサイト(https)に限る。リンクが外部に向いていても取りに行かない
+    u = urllib.parse.urlparse(url)
+    if u.scheme != "https" or u.hostname != HOST:
+        sys.exit(f"想定外の取得先のため中止します: {url}")
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read()
+        if urllib.parse.urlparse(r.geturl()).hostname != HOST:
+            sys.exit(f"想定外の転送先のため中止します: {r.geturl()}")
+        data = r.read(MAX_BYTES + 1)
+    if len(data) > MAX_BYTES:
+        sys.exit(f"サイズが大きすぎるため中止します: {url}")
+    return data
 
 
 def latest_links(html):
@@ -64,7 +77,10 @@ def main():
         for t in ("前期", "後期"):
             url, name = links[t]
             p = pathlib.Path(td) / name
-            p.write_bytes(get(url))
+            data = get(url)
+            if not data.startswith(b"%PDF-"):
+                sys.exit(f"PDFではないため中止します: {name}")
+            p.write_bytes(data)
             print(f"取得: {name} ({p.stat().st_size // 1024} KB)")
             paths.append(str(p))
         subprocess.run([sys.executable, str(ROOT / "import_btable.py"), *paths], check=True)

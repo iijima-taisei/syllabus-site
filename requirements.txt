@@ -1,5 +1,7 @@
-requests
-beautifulsoup4
-lxml
-html5lib
-pdfplumber
+# GitHub Actions(B表の日次更新・講義一覧の週次更新)で使うライブラリ。版は固定し、Dependabot で更新する
+pdfplumber==0.11.10
+requests==2.34.2
+beautifulsoup4==4.15.0
+lxml==6.1.3
+html5lib==1.1
+pykakasi==2.3.0

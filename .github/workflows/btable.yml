@@ -5,9 +5,9 @@ on:
     - cron: "0 21 * * *"   # 毎日 6:00 (日本時間)。GitHub の混雑で数十分遅れることがある
   workflow_dispatch:        # Actions の画面から手動でも実行できる
 
+# 既定は読み取りのみ。書き込みは update ジョブにだけ与える
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 concurrency:
   group: data-update
@@ -16,15 +16,18 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # データの更新をコミットして push する
+      pages: write      # Pages のビルドを依頼する
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
-      - run: pip install pdfplumber
+      - run: pip install --disable-pip-version-check -r requirements.txt
 
       - name: 基幹教育院のページを確認して、新しいB表があれば取り込む
         id: fetch
@@ -34,13 +37,16 @@ jobs:
         if: steps.fetch.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          # 取得したデータ由来の文字列はシェルに直接埋め込まず、環境変数で渡す
+          INFO: ${{ steps.fetch.outputs.versions }}
+          REPO: ${{ github.repository }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/btable.json index.html
           git diff --cached --quiet && { echo "差分なし"; exit 0; }
-          git commit -m "B表を自動更新 ${{ steps.fetch.outputs.versions }}"
+          git commit -m "B表を自動更新 $INFO"
           git pull --rebase -q
           git push
           # Actions からの push では Pages が自動で動かないことがあるので、明示的にビルドを依頼する
-          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages のビルド依頼に失敗(次の push で反映されます)"
+          gh api -X POST "repos/$REPO/pages/builds" || echo "Pages のビルド依頼に失敗(次の push で反映されます)"
