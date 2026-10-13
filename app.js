@@ -448,7 +448,7 @@ function obFinish(){
   const q=params();if(q.has('all')){q.delete('all');history.replaceState(null,'',location.hash.split('?')[0]+(q.toString()?'?'+q:''))}
   obClose();syncCtl();rerenderAll();
 }
-function rerenderAll(){const h=location.hash;if(h.startsWith('#/c/'))return;if(/^#\/[atwg](\?|$)/.test(h))rerender();else renderList()}
+function rerenderAll(){const h=location.hash;if(h.startsWith('#/c/'))return;if(/^#\/[atwgk](\?|$)/.test(h))rerender();else renderList()}
 function obRender(){
   const el=$('#ob');if(!el)return;
   const st=obSteps(),k=st[OB.step],n=st.length,first=OB.step===0;
@@ -505,8 +505,8 @@ function route(){
   $('#dbar').hidden=true;$('#dtitle').textContent='';$('#h1').hidden=false;
   renderNav();
   if(h.startsWith('#/c/')){renderDetail(decodeURIComponent(h.slice(4)))}
-  else if(/^#\/[atwg](\?|$)/.test(h)){
-    document.title={t:'時間割',a:'A表',w:'科目比較',g:'卒業要件'}[h[2]]+' - 九大シラバス';
+  else if(/^#\/[atwgk](\?|$)/.test(h)){
+    document.title={t:'時間割',a:'A表',w:'科目比較',g:'卒業要件',k:'授業日程'}[h[2]]+' - 九大シラバス';
     $('#ctl').hidden=true;rerender();measureHead();restoreScroll(sv);
   }
   else{document.title='九大シラバス';syncCtl();renderList();measureHead();restoreScroll(sv)}
@@ -559,7 +559,7 @@ const plClean=o=>{const P={p:{},adj:{},md:{}},obj=x=>x&&typeof x==='object'&&!Ar
   return P};
 let PL=(()=>{try{return plClean(JSON.parse(localStorage.getItem(PKEY)||'{}'))}catch(e){return plClean({})}})();
 const plSave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PL))}catch(e){}};
-let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null,AGRID=null,CWARI={},KREQ=null;const SER=new Map();
+let BYC={},MDREQ=null,ATABLE=null,COURSEREQ=null,AGRID=null,CWARI={},KREQ=null,CAL=null;const SER=new Map();
 const TIMES={1:'8:40',2:'10:30',3:'13:00',4:'14:50',5:'16:40'};
 const QMAP={'前期':['春','夏'],'春学期':['春'],'夏学期':['夏'],'後期':['秋','冬'],'秋学期':['秋'],'冬学期':['冬']};
 const TERMQ={'前期':['春','夏'],'後期':['秋','冬']};
@@ -705,7 +705,7 @@ function renderTT(){
   }
   g+='</div>';
   const clsOpts=`<option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}`;
-  let h=`<div class="pghead"><h2 class="lh" data-e="Timetable">時間割</h2><div class="seg" role="group" aria-label="学期" style="--i:${term==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}</div></div><div class="ctlrow"><select id="tcls" aria-label="自分のクラス">${clsOpts}</select><a class="chip" href="#/a?t=${term}">A表 ›</a></div>`;
+  let h=`<div class="pghead"><h2 class="lh" data-e="Timetable">時間割</h2><div class="seg" role="group" aria-label="学期" style="--i:${term==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}</div></div><div class="ctlrow"><select id="tcls" aria-label="自分のクラス">${clsOpts}</select><a class="chip" href="#/a?t=${term}">A表 ›</a></div>${calSoon()}`;
   const at=reqFor();
   let atb='',atd='';
   if(at){
@@ -994,14 +994,115 @@ function renderGrad(){
   v.innerHTML=out;
 }
 
+/* ---------- 授業日程(data/calendar.json、基幹教育院の「授業日程」から手で転記) ---------- */
+const WD='月火水木金土日';
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const dOf=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const wdOf=d=>WD[(d.getDay()+6)%7];
+const mdW=k=>{const d=dOf(k);return `${d.getMonth()+1}/${d.getDate()}(${wdOf(d)})`};
+// 日付 → {k: class 授業日 | swap 振替 | off 祝日・休業 | cancel 休講 | reserve 予備日 | wk 土日, as: 何曜の授業か, ns/nq: セメスター/クォーターの第何回か}
+let CALD=null;
+function calBuild(){
+  CALD=new Map();
+  for(const [tn,T] of Object.entries(CAL.terms)){
+    const cs={},cq={},end=T.q[T.q.length-1][2];
+    for(const d=dOf(T.from);ymd(d)<=end;d.setDate(d.getDate()+1)){
+      const k=ymd(d),w=wdOf(d),q=T.q.find(([,a,b])=>k>=a&&k<=b),o={term:tn,q:q&&q[0],w};
+      if(CAL.swap[k])Object.assign(o,{k:'swap',as:CAL.swap[k]});
+      else if(CAL.cancel[k])Object.assign(o,{k:'cancel',note:CAL.cancel[k]});
+      else if(CAL.reserve.includes(k))Object.assign(o,{k:'reserve',note:'予備日(災害などで授業ができなかったときの補講日)'});
+      else if(CAL.off[k])Object.assign(o,{k:'off',note:CAL.off[k]});
+      else if(w==='土'||w==='日')o.k='wk';
+      else Object.assign(o,{k:'class',as:w});
+      if(o.as){
+        if(k<=T.to){cs[o.as]=(cs[o.as]||0)+1;o.ns=cs[o.as]}
+        if(q){const x=q[0]+o.as;cq[x]=(cq[x]||0)+1;o.nq=cq[x]}
+      }
+      if(k>=T.exam[0]&&k<=T.exam[1])o.exam=true;
+      CALD.set(k,o);
+    }
+  }
+}
+const calGet=k=>{if(!CAL)return null;if(!CALD)calBuild();return CALD.get(k)||null};
+// その日の説明(一言)
+function calSay(o){
+  if(!o)return '授業期間外';
+  if(o.k==='swap')return `<b>${o.as}曜日の授業</b>を行う日(${o.w}曜日の授業はありません)`;
+  if(o.k==='class')return `${o.as}曜日の授業`;
+  if(o.k==='wk')return '土日(授業なし)';
+  return `授業なし: ${esc(o.note)}`;
+}
+const calNth=o=>o&&o.as?[o.ns?`${o.term}科目 第${o.ns}回`:o.exam?`${o.term}科目は試験期間`:'',o.nq?`${o.q}科目 第${o.nq}回`:''].filter(Boolean).join(' ・ '):'';
+// 平日の例外(振替・休講・予備日・祝日など)。続けて同じ理由の日はまとめる
+function calExceptions(tn,from){
+  if(!CALD)calBuild();
+  const out=[];
+  for(const [k,o] of CALD){
+    if(o.term!==tn||(from&&k<from)||o.k==='class'||o.k==='wk')continue;
+    const last=out[out.length-1];
+    if(last&&o.k==='off'&&last.o.k==='off'&&last.o.note===o.note&&(dOf(k)-dOf(last.to))/864e5<=3){last.to=k;continue}
+    out.push({k,to:k,o});
+  }
+  return out;
+}
+function exLabel(x){
+  const o=x.o,dt=x.to!==x.k?`${mdW(x.k)}〜${mdW(x.to)}`:mdW(x.k);
+  const what=o.k==='swap'?`${o.as}曜日の授業を行う`:o.k==='cancel'?esc(o.note):o.k==='reserve'?'予備日(授業なし)':`${esc(o.note)}(授業なし)`;
+  return {dt,what};
+}
+function renderCal(){
+  const v=$('#view'),p=params();$('#ctl').hidden=true;
+  if(!CAL){v.innerHTML='<h2 class="lh">授業日程</h2><p class="note">data/calendar.json が読み込めません。</p>';return}
+  if(!CALD)calBuild();
+  const today=ymd(new Date()),d0=p.get('d'),sel=d0&&/^\d{4}-\d\d-\d\d$/.test(d0)&&CALD.has(d0)?d0:'';
+  const t0=p.get('t'),to=CALD.get(sel||today);
+  const tn=t0==='前期'||t0==='後期'?t0:to?to.term:(today>=CAL.terms['後期'].from||today<CAL.terms['前期'].from?'後期':'前期');
+  const T=CAL.terms[tn],fo=CALD.get(today);
+  const card=(k,o,lab,extra)=>`<section class="calnow${o&&o.k==='swap'?' swap':o&&o.k!=='class'&&o.k!=='wk'?' off':''}"><p class="eyebrow">${lab}</p><div class="cn-d">${mdW(k)}</div><p class="cn-s">${calSay(o)}</p>${calNth(o)?`<p class="srcnote">${calNth(o)}</p>`:''}${o&&o.exam?'<p class="srcnote">セメスター科目の試験期間(担当教員の判断で試験を行う場合があります)</p>':''}${extra||''}</section>`;
+  let h=`<div class="pghead"><h2 class="lh" data-e="Calendar">授業日程</h2><div class="seg" role="group" aria-label="学期" style="--i:${tn==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-kt="${t}" aria-pressed="${t===tn}">${t}</button>`).join('')}</div></div>`;
+  // 今日(または選んだ日)
+  h+=card(today,fo,'今日');
+  // 例外の一覧
+  const ex=calExceptions(tn),up=ex.filter(x=>x.to>=today);
+  h+=`<section class="gsec"><h3>曜日の例外・休み <small>${tn}</small></h3><p class="srcnote">平日なのに授業がない日と、ほかの曜日の授業を行う日(振替)です。土日は除いています。</p><ul class="calx">${ex.map(x=>{const {dt,what}=exLabel(x);return `<li class="${x.o.k}${x.to<today?' past':''}${up[0]===x?' next':''}"><button type="button" data-cd="${x.k}"><b>${dt}</b><span>${what}</span>${up[0]===x?'<i>次</i>':''}</button></li>`}).join('')}</ul></section>`;
+  // 月ごとのカレンダー
+  const qs=Object.fromEntries(T.q.map(([n,a])=>[a,n]));
+  h+=`<section class="gsec"><h3>カレンダー</h3><p class="cal-lg"><span><i class="cd-s swap"></i>振替(ほかの曜日の授業)</span><span><i class="cd-s cancel"></i>休講</span><span><i class="cd-s off"></i>祝日・休業・土日</span><span><i class="cd-s reserve"></i>予備日</span><span><i class="cd-s exam"></i>試験期間</span></p>`;
+  for(const ym of T.months){
+    const [y,m]=ym.split('-').map(Number),first=new Date(y,m-1,1),pad=(first.getDay()+6)%7,n=new Date(y,m,0).getDate();
+    h+=`<div class="calm"><h4>${y}年${m}月</h4><div class="calg" role="grid">${[...WD].map(w=>`<span class="cw">${w}</span>`).join('')}${'<span></span>'.repeat(pad)}`;
+    for(let i=1;i<=n;i++){
+      const k=`${ym}-${String(i).padStart(2,'0')}`,o=CALD.get(k),dw=wdOf(new Date(y,m-1,i));
+      const cls=o?o.k:(dw==='土'||dw==='日'?'wk out':'out');
+      const tag=o?(o.k==='swap'?`${o.as}曜`:o.k==='cancel'?'休講':o.k==='reserve'?'予備':o.k==='off'?esc(o.note.replace(/の日$/,'').slice(0,4)):''):'';
+      h+=`<button type="button" class="cd ${cls}${k===today?' today':''}${k===sel?' sel':''}${o&&o.exam?' exam':''}" data-cd="${o?k:''}"${o?'':' disabled'} aria-label="${mdW(k)} ${o?calSay(o).replace(/<[^>]+>/g,''):'授業期間外'}"><b>${i}</b>${qs[k]?`<small class="qs">${qs[k]}</small>`:''}${tag?`<small>${tag}</small>`:''}</button>`;
+    }
+    h+='</div>'+(sel&&sel.startsWith(ym)?card(sel,CALD.get(sel),'選んだ日','<button type="button" class="lnk" data-cd="">閉じる</button>'):'')+'</div>';
+  }
+  h+='</section>';
+  // 履修登録などの日程
+  h+=`<section class="gsec"><h3>履修登録などの日程</h3><ul class="calx ev">${CAL.events.filter(([a])=>a>=T.from.slice(0,7)+'-01'&&a<=T.q[T.q.length-1][2]).map(([a,b,t])=>`<li class="${b<today?'past':a<=today?'now':''}"><button type="button" data-cd="${CALD.has(a)?a:''}"><b>${a===b?mdW(a):`${mdW(a)}〜${mdW(b)}`}</b><span>${esc(t)}</span>${a<=today&&today<=b?'<i>期間中</i>':''}</button></li>`).join('')}</ul><p class="srcnote">出典: ${esc(CAL.source)}。変更されることがあるので、最新の情報は基幹教育院・学務の案内で確認してください。</p></section>`;
+  v.innerHTML=h;
+}
+// 時間割の上に出す「近いうちの例外」(今日から14日以内)
+function calSoon(){
+  if(!CAL)return '';
+  const today=ymd(new Date()),lim=ymd(new Date(Date.now()+14*864e5)),to=calGet(today);
+  const xs=Object.keys(CAL.terms).flatMap(t=>calExceptions(t,today)).filter(x=>x.k!==today).filter((x,i)=>i===0||x.k<=lim).slice(0,3);
+  const now=to&&to.k==='swap'?`<b>今日は${to.as}曜日の授業</b>を行う日です。`:'';
+  if(!xs.length&&!now)return '';
+  return `<p class="wl note calsoon">${now}${xs.length?'次の例外: ':''}${xs.map(x=>{const {dt,what}=exLabel(x);return `<b>${dt}</b> ${what}`}).join('　/　')} <a href="#/k">授業日程 ›</a></p>`;
+}
+
 /* ---------- 共通: ナビ・イベント・初期化 ---------- */
 const NAVI={
   '#/':'<path d="M8.5 6.5H20M8.5 12H20M8.5 17.5H20"/><circle cx="4.2" cy="6.5" r=".9"/><circle cx="4.2" cy="12" r=".9"/><circle cx="4.2" cy="17.5" r=".9"/>',
   '#/t':'<rect x="3.5" y="4.5" width="17" height="16" rx="2.2"/><path d="M3.5 9.5h17M9.2 9.5v11M3.5 15h17"/>',
+  '#/k':'<rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4"/>',
   '#/g':'<circle cx="12" cy="12" r="8.5"/><path d="M8 12.4l2.8 2.8L16.4 9"/>',
   '#/w':'<path d="M5 20V11M12 20V4M19 20v-6"/>'};
 function renderNav(){
-  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')||h.startsWith('#/a')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')]];
+  const h=location.hash,items=[['#/','一覧',h===''||h==='#'||h.startsWith('#/?')||h==='#/'],['#/t','時間割',h.startsWith('#/t')||h.startsWith('#/a')],['#/k','日程',h.startsWith('#/k')],['#/g','卒業要件',h.startsWith('#/g')],['#/w','科目比較',h.startsWith('#/w')]];
   const n=$('#nav');n.hidden=h.startsWith('#/c/');
   n.innerHTML=items.map(([u,l,on])=>`<a href="${u}"${on?' class="on" aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${NAVI[u]}</svg><span>${l}</span></a>`).join('');
 }
@@ -1034,13 +1135,15 @@ function renderA(){
 }
 function rerender(){
   const h=location.hash;
-  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/a'))renderA();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();
+  if(h.startsWith('#/t'))renderTT();else if(h.startsWith('#/k'))renderCal();else if(h.startsWith('#/a'))renderA();else if(h.startsWith('#/g'))renderGrad();else if(h.startsWith('#/w'))renderCmp();
 }
 function bumpTT(code){/* 追加・削除のあと、同じ画面を描き直す */rerender()}
 $('#view').addEventListener('click',e=>{
   const t=e.target,by=s=>t.closest(s);let b;
   if(b=by('[data-totop]')){document.querySelector('.tt').scrollIntoView({behavior:'smooth',block:'start'});return}
   if(b=by('[data-cell]')){const p=params(),k=b.dataset.cell;p.get('s')===k?p.delete('s'):p.set('s',k);history.replaceState(null,'','#/t?'+p);const y=scrollY,opening=p.get('s')===k;renderTT();scrollTo(0,y);if(opening){const pn=document.querySelector('.panel');if(pn)pn.scrollIntoView({behavior:'smooth',block:'start'})}return}
+  if(b=by('[data-kt]')){const q=params();q.set('t',b.dataset.kt);q.delete('d');history.replaceState(null,'','#/k?'+q);renderCal();return}
+  if(b=by('[data-cd]')){const q=params(),k=b.dataset.cd;k?q.set('d',k):q.delete('d');history.replaceState(null,'','#/k?'+q);const y=scrollY;renderCal();scrollTo(0,y);if(k){const c=document.querySelector('.calm .calnow');c&&c.scrollIntoView({block:'nearest'})}return}
   if(b=by('[data-at]')){const q=params();q.set('t',b.dataset.at);history.replaceState(null,'','#/a?'+q);renderA();return}
   if(b=by('[data-tt]')){const p=params();p.set('t',b.dataset.tt);p.delete('s');history.replaceState(null,'','#/t?'+p);renderTT();return}
   if(b=by('[data-nolot]')){const p=params();p.get('nolot')?p.delete('nolot'):p.set('nolot','1');history.replaceState(null,'','#/t?'+p);renderTT();return}
@@ -1084,4 +1187,4 @@ function initFeatures(){
   buildSeries();
 }
 
-Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/yomi.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/classwari.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/kibanreq.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag,yo,el,kr])=>{DATA=j;KREQ=kr;YOMI=yo||{};CWARI=(el&&el.classes)||{};MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
+Promise.all([fetch('data/index.json',{cache:'no-cache'}).then(r=>r.json()),fetch('data/boilerplate.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/btable.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('btable.json',{cache:'no-cache'})).then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/mdreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/atable.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/coursereq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/agrid.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/yomi.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/classwari.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/kibanreq.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('data/calendar.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([j,b,bt,md,at,cr,ag,yo,el,kr,ca])=>{DATA=j;KREQ=kr;CAL=ca&&ca.terms?ca:null;YOMI=yo||{};CWARI=(el&&el.classes)||{};MDREQ=md;ATABLE=at;COURSEREQ=cr;AGRID=ag;if(bt&&bt.rows){BT=bt.rows;BTV=bt.versions||{};DATA.forEach(c=>{c.b=BT[c.c]})}if(b){(b.labels||[]).forEach(l=>BOIL.labels.add(l));(b.pairs||[]).forEach(([k,x])=>BOIL.pairs.add(k+'\u0000'+x))}initFeatures();route();countUp();meLabel();if(!PROF)obOpen(false)}).catch(err=>{console.error(err);$('#view').innerHTML='<p class="note">data/index.json を読み込めません。scrape.py を実行するか、ローカルサーバー経由で開いてください。</p>'});
