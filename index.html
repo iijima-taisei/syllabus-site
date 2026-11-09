@@ -17,7 +17,7 @@
    方向性: 印刷物の時間割・学生便覧のような編集デザイン。紙の色 / 墨 / 朱 / 藍。
    見出しは明朝、本文はゴシック、数字と小さなラベルは等幅。罫線を主役にして装飾を足さない。 */
 :root{
-  --paper:#f3efe6;--paper-2:#ebe5d6;--surface:#fbf9f3;--ink:#16140f;--ink-2:#58554b;--ink-3:#6c6859;--on-accent:#fff;
+  --paper:#f3efe6;--paper-2:#ebe5d6;--surface:#fbf9f3;--ink:#16140f;--ink-2:#58554b;--ink-3:#645f51;--on-accent:#fff;
   --rule:rgba(22,20,15,.14);--rule-2:rgba(22,20,15,.28);
   --accent:#d4361e;--accent-t:#b82a14;--accent-2:#f7dcd4;--indigo:#27348b;--indigo-2:#dde1f3;--moss:#2d6a4f;--moss-2:#d9eadf;--amber:#8a5000;--amber-2:#f7e3c0;
   --f-body:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
@@ -142,7 +142,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:34px;background-ima
 /* ---------- ページ見出し ---------- */
 h2.lh,.sechead h2{font-size:clamp(1.9rem,6.6vw,2.7rem);line-height:1.15;letter-spacing:.01em;margin:0 0 6px;font-weight:800}
 h2.lh small{display:block;font-family:var(--f-body);font-size:.82rem;font-weight:500;color:var(--ink-2);letter-spacing:.02em;margin-top:6px}
-h2.lh[data-e]::before{content:attr(data-e);display:block;font-family:var(--f-mono);font-weight:400;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-t);margin-bottom:10px}
+
 .back{display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;color:var(--ink);font-size:.86rem;font-weight:700;text-decoration:none;font-family:var(--f-mono);letter-spacing:.04em}
 .back:hover{color:var(--accent-t)}
 
@@ -243,8 +243,8 @@ a.rel.cmp:hover{background:var(--ink);color:var(--paper)}
 .th.today::after{content:"";position:absolute;left:50%;bottom:-1px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--accent)}
 .tl{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
 .tl b{font-family:var(--f-mono);font-size:1rem;font-weight:600}.tl small{font-family:var(--f-mono);font-size:.68rem;color:var(--ink-3);letter-spacing:.02em}
-.tl.now b{color:var(--accent-t)}.tl.now::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);margin-bottom:3px;animation:pulse 1.8s var(--ease-io) infinite}
-@keyframes pulse{50%{transform:scale(1.7);opacity:.35}}
+.tl.now b{color:var(--accent-t)}.tl.now::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);margin-bottom:3px}
+
 .cell{min-height:92px;border:1px solid var(--rule);background:var(--surface);border-radius:8px;padding:5px 5px 4px;display:flex;flex-direction:column;gap:3px;font:inherit;color:inherit;cursor:pointer;text-align:left;overflow:hidden;position:relative;transition:transform .3s var(--ease),border-color .2s,background .2s,box-shadow .3s}
 .cell:hover{border-color:var(--ink);transform:translateY(-2px)}.cell:active{transform:scale(.96)}
 .cell.col-today:not(.has){background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
@@ -282,8 +282,8 @@ details{margin:10px 0}summary{cursor:pointer;padding:6px 0;font-weight:700}
 .note>summary,details.note summary{color:var(--ink-2)}
 
 /* 時間割ヘッダー */
-.pghead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:6px}
-.pghead h2.lh{margin:0}.pghead h2.lh[data-e]::before{margin-bottom:6px}
+.pghead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.pghead h2.lh{margin:0}
 .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;flex:none;padding:3px;border:1px solid var(--rule-2);border-radius:999px;background:var(--surface);margin-bottom:6px}
 .seg::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--ink);transform:translateX(calc(var(--i,0)*100%));transition:transform .45s var(--ease)}
 .ltools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}.ltools .count{margin:0}
@@ -388,15 +388,16 @@ mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--accent) 
   .hero h2{animation:hero-shrink linear both;animation-timeline:scroll(root);animation-range:0 320px;transform-origin:left top}
   @keyframes hero-shrink{to{opacity:.25;transform:scale(.9) translateY(-6px)}}
 }
-@keyframes rise{from{opacity:0;transform:translateY(14px)}}
-#view>*{animation:rise .6s var(--ease) both}
-#view>*:nth-child(2){animation-delay:.05s}#view>*:nth-child(3){animation-delay:.1s}#view>*:nth-child(4){animation-delay:.15s}
-.item:nth-child(-n+10){animation:rise .6s var(--ease) both}
-.item:nth-child(2){animation-delay:.04s}.item:nth-child(3){animation-delay:.08s}.item:nth-child(4){animation-delay:.12s}.item:nth-child(5){animation-delay:.16s}.item:nth-child(6){animation-delay:.2s}.item:nth-child(7){animation-delay:.24s}.item:nth-child(8){animation-delay:.28s}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+/* 入場アニメーションは画面を開いたときだけ(.enter)。同じ画面の描き直しでは動かさない */
+#view.enter>*{animation:rise .3s var(--ease) both}
+#view.enter>*:nth-child(2){animation-delay:.03s}#view.enter>*:nth-child(3){animation-delay:.06s}#view.enter>*:nth-child(n+4){animation-delay:.09s}
+.enter .item:nth-child(-n+10){animation:rise .3s var(--ease) both}
+.item:nth-child(2){animation-delay:.02s}.item:nth-child(3){animation-delay:.04s}.item:nth-child(4){animation-delay:.06s}.item:nth-child(n+5){animation-delay:.08s}
 .skel{height:76px;margin:14px 0;border-radius:var(--r);background:linear-gradient(100deg,var(--paper-2) 30%,color-mix(in srgb,var(--paper-2) 50%,var(--surface)) 50%,var(--paper-2) 70%) 0 0/300% 100%;animation:shim 1.4s linear infinite}
 @keyframes shim{to{background-position:-300% 0}}
-::view-transition-old(root){animation:vt-out .22s var(--ease-io) both}::view-transition-new(root){animation:vt-in .42s var(--ease) both}
-@keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}@keyframes vt-in{from{opacity:0;transform:translateY(16px)}}
+::view-transition-old(root){animation:vt-out .16s var(--ease-io) both}::view-transition-new(root){animation:vt-in .26s var(--ease) both}
+@keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}@keyframes vt-in{from{opacity:0;transform:translateY(8px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;transition-duration:.001ms!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 
 /* 授業日程 */
@@ -411,7 +412,7 @@ mark{background:linear-gradient(transparent 58%,color-mix(in srgb,var(--accent) 
 .calx button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .calx b{font-family:var(--f-mono);font-weight:600;font-size:.86rem}
 .calx li.swap span{color:var(--amber);font-weight:700}.calx li.cancel span{color:var(--ng);font-weight:700}
-.calx li.past{opacity:.45}
+.calx li.past b,.calx li.past span{color:var(--ink-3);font-weight:400}
 .calx i{font-style:normal;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--paper)}
 .calx.ev li.now span{font-weight:700}
 .cal-lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:var(--ink-2);margin:6px 0 4px}

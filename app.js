@@ -136,7 +136,7 @@ let DATA=[],shown=100,listScroll=0;
 const params=()=>new URLSearchParams(location.hash.split('?')[1]||'');
 const slots=c=>c.when.map(w=>{const d=w.match(/([月火水木金土日])曜日/),p=zen(w).match(/(\d)時限/);return{sem:w.split(/[\s\u3000]+/)[0],d:d&&d[1],p:p&&p[1]}});
 
-function setP(k,v){const p=params();v?p.set(k,v):p.delete(k);if(k==='cat')p.delete('sub');history.replaceState(null,'','#/?'+p);shown=100;syncCtl();renderList()}
+function setP(k,v){$('#view').classList.remove('enter');const p=params();v?p.set(k,v):p.delete(k);if(k==='cat')p.delete('sub');history.replaceState(null,'','#/?'+p);shown=100;syncCtl();renderList()}
 function opts(id,label,vals,cur){$(id).innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option${v===cur?' selected':''}>${esc(v)}</option>`).join('')}
 function uniq(f){return [...new Set(pool().flatMap(f).filter(Boolean))].sort()}
 function syncCtl(){
@@ -202,7 +202,7 @@ function renderList(){
   if(!active&&hist.length){
     h+=`<details class="hist"${histOpen?' open':''}><summary>最近見た講義 <small>${hist.length}件</small></summary><div class="sechead"><span></span><button class="lnk" id="hclear" type="button">履歴を消す</button></div>${hist.slice(0,histAll?30:5).map(itemHTML).join('')}${hist.length>5&&!histAll?'<button class="lnk" id="hmore" type="button">もっと見る</button>':''}</details>`;
   }
-  h+=`<section><h2 class="lh" data-e="Courses">講義を探す</h2><div class="ltools"><p class="count"><b>${r.length}</b> 件</p><div class="seg sm" role="group" aria-label="表示する学部" style="--i:${allOn()?1:0}"><button type="button" id="scope0" aria-pressed="${!allOn()}">${esc(scopeLabel())}</button><button type="button" id="scope1" aria-pressed="${allOn()}">全学部</button></div></div>${active||p.get('place')||p.get('nolot')?'<button class="lnk fclr" id="fclear" type="button">条件をクリア ×</button>':''}${mineOn()?`<p class="count"><b>${esc(clsName(CLS))}</b> で受講できる授業(B表で判定)</p>`:''}${r.length?'':'<div class="empty"><div class="eg" aria-hidden="true">∅</div><p><b>条件に合う講義がありません</b></p><p class="note">キーワードを短くするか、絞り込みを減らしてみてください。</p></div>'}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
+  h+=`<section><h2 class="lh">講義を探す</h2><div class="ltools"><p class="count"><b>${r.length}</b> 件</p><div class="seg sm" role="group" aria-label="表示する学部" style="--i:${allOn()?1:0}"><button type="button" id="scope0" aria-pressed="${!allOn()}">${esc(scopeLabel())}</button><button type="button" id="scope1" aria-pressed="${allOn()}">全学部</button></div></div>${active||p.get('place')||p.get('nolot')?'<button class="lnk fclr" id="fclear" type="button">条件をクリア ×</button>':''}${mineOn()?`<p class="count"><b>${esc(clsName(CLS))}</b> で受講できる授業(B表で判定)</p>`:''}${r.length?'':'<div class="empty"><div class="eg" aria-hidden="true">∅</div><p><b>条件に合う講義がありません</b></p><p class="note">キーワードを短くするか、絞り込みを減らしてみてください。</p></div>'}${r.slice(0,shown).map(itemHTML).join('')}${r.length>shown?'<button class="chip more" id="more">さらに表示</button>':''}</section>`;
   v.innerHTML=h;
   const m=$('#more');m&&(m.onclick=()=>{shown+=100;renderList()});
   const fc=$('#fclear');fc&&(fc.onclick=()=>{const q=params();['q','sem','cat','sub','d','per','place','nolot'].forEach(k=>q.delete(k));history.replaceState(null,'','#/'+(q.toString()?'?'+q:''));shown=100;syncCtl();renderList()});
@@ -416,7 +416,7 @@ function restoreScroll(sv){
   if(window.__cc&&!$('#ctl').hidden)window.__cc.set(!!sv.cc);
   let n=0;const go=()=>{window.scrollTo(0,sv.y);if(Math.abs(scrollY-sv.y)>2&&n++<30)requestAnimationFrame(go)};go();
 }
-let vtBusy=false;
+let vtBusy=false,enterT=0;
 /* ---------- 初回チュートリアル(学部・学年・クラス) ---------- */
 const OB={step:0,fac:'',year:0,cls:'',fromMenu:false};
 function meLabel(){const el=$('#mel');if(!el)return;el.textContent=CLS?clsName(CLS):PROF&&PROF.fac?PROF.fac+(PROF.year==='G'?' 院':PROF.year?' '+PROF.year+'年':''):'設定'}
@@ -454,7 +454,7 @@ function obRender(){
   const st=obSteps(),k=st[OB.step],n=st.length,first=OB.step===0;
   const opt=(val,label,sub,on,attr)=>`<button type="button" class="ob-opt" ${attr}="${esc(val)}" aria-pressed="${on}"><b>${esc(label)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>`;
   let body='';
-  if(k==='hello')body=`<p class="eyebrow">Welcome</p><h2 id="obh">はじめに、あなたのことを教えてください</h2><p class="ob-p">学部・学年・クラスを登録すると、次のことができるようになります。</p><ul class="ob-ul"><li><b>受講できる授業</b>だけを一覧に表示</li><li>時間割に<b>必修</b>をまとめて追加</li><li>コースの<b>卒業要件</b>を集計</li></ul><p class="ob-note">設定はこの端末のブラウザにだけ保存されます。あとからいつでも変えられます。</p>`;
+  if(k==='hello')body=`<h2 id="obh">はじめに、あなたのことを教えてください</h2><p class="ob-p">学部・学年・クラスを登録すると、次のことができるようになります。</p><ul class="ob-ul"><li><b>受講できる授業</b>だけを一覧に表示</li><li>時間割に<b>必修</b>をまとめて追加</li><li>コースの<b>卒業要件</b>を集計</li></ul><p class="ob-note">設定はこの端末のブラウザにだけ保存されます。あとからいつでも変えられます。</p>`;
   if(k==='fac')body=`<p class="eyebrow">Step ${OB.step+(OB.fromMenu?1:0)} / ${n-(OB.fromMenu?0:1)}</p><h2 id="obh">学部は?</h2><div class="ob-opts">${FACS.map(f=>opt(f,f,'',OB.fac===f,'data-ofac')).join('')}${opt('','その他・学外','全学部の授業を表示します',OB.fac===''&&OB.year!==0,'data-ofac')}</div>`;
   if(k==='year')body=`<p class="eyebrow">Step ${OB.step+(OB.fromMenu?1:0)} / ${n-(OB.fromMenu?0:1)}</p><h2 id="obh">学年は?</h2><div class="ob-opts">${[[1,'1年'],[2,'2年'],[3,'3年'],[4,'4年以上'],['G','大学院']].map(([v,l])=>opt(v,l,v==='G'?'全学部の授業を表示します':'',OB.year===v,'data-oyear')).join('')}</div>`;
   if(k==='cls'){const grp=CLASSDEF.find(([g])=>g===OB.fac);body=`<p class="eyebrow">Step ${OB.step+(OB.fromMenu?1:0)} / ${n-(OB.fromMenu?0:1)}</p><h2 id="obh">クラスは?</h2><p class="ob-p">A表・B表のクラス記号です。分からなければ、あとで選べます。</p><div class="ob-opts">${grp[1].map(([v,l])=>opt(v,v,l,OB.cls===v,'data-ocls')).join('')}${opt('','わからない・あとで','',OB.cls===''&&OB.step>0&&false,'data-ocls')}</div>`}
@@ -501,6 +501,8 @@ function route(){
   const st0=history.state;let sv=null;
   if(st0&&st0.k){curKey=st0.k;sv=SCP[st0.k]||null}else{curKey='k'+(++keySeq)+'_'+Date.now();_rs({k:curKey},'')}
   if(sv&&/^#\/?(\?|$)/.test(location.hash))shown=sv.shown||shown;
+  // 入場アニメーション: ビュートランジション中は重ねない(二重にフェードして一度消えて見えるため)
+  const vw=$('#view');vw.classList.toggle('enter',!vtBusy);clearTimeout(enterT);enterT=setTimeout(()=>vw.classList.remove('enter'),900);
   const h=location.hash;
   $('#dbar').hidden=true;$('#dtitle').textContent='';$('#h1').hidden=false;
   renderNav();
@@ -521,6 +523,8 @@ $('#nolot').addEventListener('click',()=>setP('nolot',params().get('nolot')?'':'
 $('#place').addEventListener('change',e=>setP('place',e.target.value));
 $('#days').addEventListener('click',e=>{const b=e.target.closest('[data-d]');b&&setP('d',params().get('d')===b.dataset.d?'':b.dataset.d)});
 $('#view').addEventListener('click',e=>{if(e.target.closest('.item'))listScroll=window.scrollY});
+// 画面内の操作で描き直すときは入場アニメーションを止める
+$('#view').addEventListener('click',()=>$('#view').classList.remove('enter'),true);
 window.addEventListener('hashchange',()=>{
   saveScroll();inApp=true;
   const go=()=>{route();countUp()};
@@ -705,7 +709,7 @@ function renderTT(){
   }
   g+='</div>';
   const clsOpts=`<option value="">クラス未設定</option>${CLASSDEF.map(([gn,a])=>`<optgroup label="${gn}">${a.map(([x,l])=>`<option value="${x}"${x===CLS?' selected':''}>${/^D/.test(x)?clsName(x):x+(l?' '+esc(l):'')}</option>`).join('')}</optgroup>`).join('')}`;
-  let h=`<div class="pghead"><h2 class="lh" data-e="Timetable">時間割</h2><div class="seg" role="group" aria-label="学期" style="--i:${term==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}</div></div><div class="ctlrow"><select id="tcls" aria-label="自分のクラス">${clsOpts}</select><a class="chip" href="#/a?t=${term}">A表 ›</a></div>${calSoon()}`;
+  let h=`<div class="pghead"><h2 class="lh">時間割</h2><div class="seg" role="group" aria-label="学期" style="--i:${term==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-tt="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}</div></div><div class="ctlrow"><select id="tcls" aria-label="自分のクラス">${clsOpts}</select><a class="chip" href="#/a?t=${term}">A表 ›</a></div>${calSoon()}`;
   const at=reqFor();
   let atb='',atd='';
   if(at){
@@ -845,7 +849,7 @@ async function renderCmp(){
     const m=new Map(),mine0=CLS&&p.get('mine')!=='0';
     for(const c of pool()){if(mine0&&!okFor(c))continue;const k=nameKey(c.n);if(!m.has(k))m.set(k,[]);m.get(k).push(c)}
     const a=[...m].filter(([,x])=>x.length>=3).sort((x,y)=>y[1].length-x[1].length);
-    v.innerHTML=`<h2 class="lh" data-e="Compare">科目比較</h2><p class="count">同じ科目名で複数のクラス・教員に分かれている授業を、成績配分で比べられます。</p>${CLS?`<div class="row"><button class="chip" data-cmine="1" aria-pressed="${mine0}">${esc(clsName(CLS))}で受講可のみ</button></div>`:''}<input id="cmpq" type="search" placeholder="科目名で絞り込み" style="width:100%;margin-bottom:8px">`+a.map(([k,x])=>`<a class="item" data-nm="${esc(k.toLowerCase())}" href="#/w?n=${encodeURIComponent(k)}"><b>${esc(k)}</b><span class="meta">${x.length}クラス　${[...new Set(x.map(c=>c.t))].length}人の教員</span></a>`).join('')||'<p class="note">該当なし</p>';
+    v.innerHTML=`<h2 class="lh">科目比較</h2><p class="count">同じ科目名で複数のクラス・教員に分かれている授業を、成績配分で比べられます。</p>${CLS?`<div class="row"><button class="chip" data-cmine="1" aria-pressed="${mine0}">${esc(clsName(CLS))}で受講可のみ</button></div>`:''}<input id="cmpq" type="search" placeholder="科目名で絞り込み" style="width:100%;margin-bottom:8px">`+a.map(([k,x])=>`<a class="item" data-nm="${esc(k.toLowerCase())}" href="#/w?n=${encodeURIComponent(k)}"><b>${esc(k)}</b><span class="meta">${x.length}クラス　${[...new Set(x.map(c=>c.t))].length}人の教員</span></a>`).join('')||'<p class="note">該当なし</p>';
     $('#cmpq').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();document.querySelectorAll('#view .item[data-nm]').forEach(el=>{el.hidden=!!q&&!el.dataset.nm.includes(q)})});
     return;
   }
@@ -854,7 +858,7 @@ async function renderCmp(){
   if(!cs.length)cs=pool().filter(c=>nameKey(c.n).startsWith(n));
   const total=cs.length;
   if(mine)cs=cs.filter(c=>!c.b||elig(c)!=='no');
-  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh" data-e="Compare / 同名科目">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(clsName(CLS))} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(clsName(CLS))}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
+  v.innerHTML=`<a class="back" href="#/w">‹ 科目一覧</a><h2 class="lh">${esc(n)}</h2><p class="count">${cs.length}件${mine&&total!==cs.length?`(${esc(clsName(CLS))} で受講できるもの。全 ${total}件)`:''}</p><div class="row">${CLS?`<button class="chip" data-cmine="1" aria-pressed="${!!mine}">${esc(clsName(CLS))}で受講可のみ</button>`:''}${Object.entries(METRIC).map(([k,[l]])=>`<button class="chip" data-co="${k}" aria-pressed="${k===sortKey}">${l}</button>`).join('')}</div><div id="cmplist"></div>`;
   const box=$('#cmplist'),draw=()=>{
     const arr=cs.map(c=>({c,g:GC[c.c]})).sort((a,b)=>{
       const f=METRIC[sortKey][1],x=a.g&&!a.g.err?f(a.g.rows):99,y=b.g&&!b.g.err?f(b.g.rows):99;
@@ -935,7 +939,7 @@ function renderGrad(){
   const fac=n=>n.split(' ')[0];
   const opts=KC.length?[...new Set(KC.map(c=>fac(c.name)))].map(f=>{const cs=KC.filter(c=>fac(c.name)===f);return cs.length===1?`<option value="${esc(cs[0].id)}"${cs[0].id===gk?' selected':''}>${esc(cs[0].name)}</option>`:`<optgroup label="${esc(f)}">${cs.map(c=>`<option value="${esc(c.id)}"${c.id===gk?' selected':''}>${esc(c.name.slice(f.length).trim()||f)}</option>`).join('')}</optgroup>`}).join('')
     :Object.entries(ARTC).map(([k,n])=>`<option value="${k}"${k===gk?' selected':''}>${n}コース</option>`).join('');
-  let out=`<h2 class="lh" data-e="Graduation">卒業要件</h2><div class="row"><select id="gcourse" aria-label="学部・学科・コース">${opts}</select></div>${R.note?`<p class="srcnote">${esc(R.note)}</p>`:''}`;
+  let out=`<h2 class="lh">卒業要件</h2><div class="row"><select id="gcourse" aria-label="学部・学科・コース">${opts}</select></div>${R.note?`<p class="srcnote">${esc(R.note)}</p>`:''}`;
   let doneAll=0,planAll=0;
   // --- 基幹教育
   const K=R.kiban;let kd=0,kp=0,excess=0;const kr=[];
@@ -1059,7 +1063,7 @@ function renderCal(){
   const tn=t0==='前期'||t0==='後期'?t0:to?to.term:(today>=CAL.terms['後期'].from||today<CAL.terms['前期'].from?'後期':'前期');
   const T=CAL.terms[tn],fo=CALD.get(today);
   const card=(k,o,lab,extra)=>`<section class="calnow${o&&o.k==='swap'?' swap':o&&o.k!=='class'&&o.k!=='wk'?' off':''}"><p class="eyebrow">${lab}</p><div class="cn-d">${mdW(k)}</div><p class="cn-s">${calSay(o)}</p>${calNth(o)?`<p class="srcnote">${calNth(o)}</p>`:''}${o&&o.exam?'<p class="srcnote">セメスター科目の試験期間(担当教員の判断で試験を行う場合があります)</p>':''}${extra||''}</section>`;
-  let h=`<div class="pghead"><h2 class="lh" data-e="Calendar">授業日程</h2><div class="seg" role="group" aria-label="学期" style="--i:${tn==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-kt="${t}" aria-pressed="${t===tn}">${t}</button>`).join('')}</div></div>`;
+  let h=`<div class="pghead"><h2 class="lh">授業日程</h2><div class="seg" role="group" aria-label="学期" style="--i:${tn==='後期'?1:0}">${['前期','後期'].map(t=>`<button type="button" data-kt="${t}" aria-pressed="${t===tn}">${t}</button>`).join('')}</div></div>`;
   // 今日(または選んだ日)
   h+=card(today,fo,'今日');
   // 例外の一覧
@@ -1114,7 +1118,7 @@ function renderA(){
   const A=AGRID&&AGRID.classes;
   if(!A){v.innerHTML='<h2 class="lh">A表</h2><p class="note">data/agrid.json が読み込めません。</p>';return}
   const opts=CLASSDEF.filter(([g])=>!/2〜4年/.test(g)).map(([gn,a])=>`<optgroup label="${gn}">${a.filter(([x])=>A[x]).map(([x,l])=>`<option value="${x}"${x===cls?' selected':''}>${x}${l?' '+esc(l):''}</option>`).join('')}</optgroup>`).join('');
-  let h=`<a class="back" href="#/t?t=${term}">‹ 時間割</a><h2 class="lh" data-e="Table A">A表 <small>基幹教育科目の開講時間割枠(1年生用)</small></h2><div class="row">${['前期','後期'].map(t=>`<button class="chip" data-at="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="acls" aria-label="クラス" style="flex:1 1 100%"><option value="">クラスを選んでください</option>${opts}</select></div>`;
+  let h=`<a class="back" href="#/t?t=${term}">‹ 時間割</a><h2 class="lh">A表 <small>基幹教育科目の開講時間割枠(1年生用)</small></h2><div class="row">${['前期','後期'].map(t=>`<button class="chip" data-at="${t}" aria-pressed="${t===term}">${t}</button>`).join('')}<select id="acls" aria-label="クラス" style="flex:1 1 100%"><option value="">クラスを選んでください</option>${opts}</select></div>`;
   if(/^D/.test(CLS||'')&&!p.get('c'))h+='<p class="hint">A表は1年生用の資料です。2年生以上の芸術工学部の授業は、時間割の「この枠で取れる授業」で確認できます。</p>';
   const g=cls&&A[cls]&&A[cls][term];
   if(!g){h+=A&&cls?'<p class="note">このクラスのA表はありません。</p>':'<p class="hint">クラスを選ぶと、そのクラスの枠が表示されます。</p>'}
